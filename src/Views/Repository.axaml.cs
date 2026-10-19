@@ -121,6 +121,12 @@ namespace SourceGit.Views
             e.Handled = true;
         }
 
+        private void OnOpenSessionsDashboard(object sender, RoutedEventArgs e)
+        {
+            (DataContext as ViewModels.Repository)?.ToggleSessionsDashboard();
+            e.Handled = true;
+        }
+
         private void OnToggleSidebarFilter(object _, RoutedEventArgs e)
         {
             FilterBox.Focus();

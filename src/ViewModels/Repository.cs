@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,11 +77,61 @@ namespace SourceGit.ViewModels
             {
                 if (SetProperty(ref _selectedViewIndex, value))
                 {
-                    OnPropertyChanged(nameof(IsDashboardVisible));
-                    OnPropertyChanged(nameof(IsWorkingCopyVisible));
-                    OnPropertyChanged(nameof(IsStashesVisible));
+                    if (_isSessionsDashboardVisible)
+                        _isSessionsDashboardVisible = false;
+
+                    // First visit of the terminal page opens a default shell session.
+                    if (value == 3 && TerminalSessions.Count == 0)
+                        NewTerminalSession();
+
+                    RefreshPageVisibilities();
                 }
             }
+        }
+
+        public bool IsSessionsDashboardVisible
+        {
+            get => _isSessionsDashboardVisible;
+            private set
+            {
+                if (SetProperty(ref _isSessionsDashboardVisible, value))
+                    RefreshPageVisibilities();
+            }
+        }
+
+        public AvaloniaList<TerminalSession> TerminalSessions
+        {
+            get;
+        } = [];
+
+        /// <summary>Session currently displayed by the repository terminal page.</summary>
+        public TerminalSession SelectedSession
+        {
+            get => _selectedSession;
+            set
+            {
+                if (!SetProperty(ref _selectedSession, value))
+                    return;
+
+                OnPropertyChanged(nameof(IsSelectedSessionRunning));
+                OnPropertyChanged(nameof(IsNoSessionAvailable));
+                OnPropertyChanged(nameof(SelectedSessionStateText));
+            }
+        }
+
+        public bool IsSelectedSessionRunning
+        {
+            get => _selectedSession is { IsRunning: true };
+        }
+
+        public bool IsNoSessionAvailable
+        {
+            get => TerminalSessions.Count == 0;
+        }
+
+        public string SelectedSessionStateText
+        {
+            get => _selectedSession?.StateText ?? string.Empty;
         }
 
         public Histories Histories
@@ -100,17 +151,99 @@ namespace SourceGit.ViewModels
 
         public bool IsDashboardVisible
         {
-            get => SelectedViewIndex == 0;
+            get => !_isSessionsDashboardVisible && SelectedViewIndex == 0;
         }
 
         public bool IsWorkingCopyVisible
         {
-            get => SelectedViewIndex == 1;
+            get => !_isSessionsDashboardVisible && SelectedViewIndex == 1;
         }
 
         public bool IsStashesVisible
         {
-            get => SelectedViewIndex == 2;
+            get => !_isSessionsDashboardVisible && SelectedViewIndex == 2;
+        }
+
+        public bool IsTerminalVisible
+        {
+            get => !_isSessionsDashboardVisible && SelectedViewIndex == 3;
+        }
+
+        /// <summary>Reacts to TerminalService registry updates and keeps the filtered list in sync.</summary>
+        public void NewTerminalSession(string profile = TerminalSession.ShellProfile)
+        {
+            var session = TerminalService.Create(this, profile);
+            ShowTerminalPage(session);
+        }
+
+        public void ShowTerminalPage(TerminalSession session)
+        {
+            if (_isSessionsDashboardVisible)
+            {
+                _isSessionsDashboardVisible = false;
+                OnPropertyChanged(nameof(IsSessionsDashboardVisible));
+            }
+
+            SelectedSession = session;
+            SelectedViewIndex = 3;
+        }
+
+        public void ToggleSessionsDashboard()
+        {
+            IsSessionsDashboardVisible = !IsSessionsDashboardVisible;
+        }
+
+        public void CloseSessionsDashboard()
+        {
+            if (_isSessionsDashboardVisible)
+                IsSessionsDashboardVisible = false;
+        }
+
+        public void KillSelectedSession()
+        {
+            if (_selectedSession is not null)
+                TerminalService.Kill(_selectedSession);
+        }
+
+        public void RestartSelectedSession()
+        {
+            if (_selectedSession is not null)
+                TerminalService.Start(_selectedSession);
+        }
+
+        public void CloseSelectedSession()
+        {
+            if (_selectedSession is not null)
+                TerminalService.Close(_selectedSession);
+        }
+
+        private void RefreshTerminalSessions()
+        {
+            var wanted = new List<TerminalSession>();
+            foreach (var one in TerminalService.Sessions)
+            {
+                if (one.RepositoryPath.Equals(FullPath, StringComparison.Ordinal))
+                    wanted.Add(one);
+            }
+
+            TerminalSessions.Clear();
+            foreach (var item in wanted)
+                TerminalSessions.Add(item);
+
+            if (_selectedSession is null || !wanted.Contains(_selectedSession))
+                SelectedSession = wanted.LastOrDefault();
+
+            OnPropertyChanged(nameof(IsNoSessionAvailable));
+            OnPropertyChanged(nameof(IsSelectedSessionRunning));
+            OnPropertyChanged(nameof(SelectedSessionStateText));
+        }
+
+        private void RefreshPageVisibilities()
+        {
+            OnPropertyChanged(nameof(IsDashboardVisible));
+            OnPropertyChanged(nameof(IsWorkingCopyVisible));
+            OnPropertyChanged(nameof(IsStashesVisible));
+            OnPropertyChanged(nameof(IsTerminalVisible));
         }
 
         public string Filter
@@ -456,11 +589,16 @@ namespace SourceGit.ViewModels
             _selectedViewIndex = Preferences.Instance.ShowLocalChangesByDefault ? 1 : 0;
             _lastFetchTime = DateTime.Now;
             _autoFetchTimer = new Timer(AutoFetchByTimer, null, 5000, 5000);
+            RefreshTerminalSessions();
+            TerminalService.SessionsChanged += OnTerminalSessionsChanged;
             RefreshAll();
         }
 
         public void Close()
         {
+            TerminalService.SessionsChanged -= OnTerminalSessionsChanged;
+            TerminalService.CloseAllForRepository(FullPath);
+
             var commitMessage = _workingCopy.CommitMessage;
             if (!string.IsNullOrEmpty(commitMessage) && _workingCopy.InProgressContext != null)
                 File.WriteAllText(Path.Combine(GitDir, "MERGE_MSG"), commitMessage);
@@ -1662,6 +1800,17 @@ namespace SourceGit.ViewModels
             return null;
         }
 
+        private void OnTerminalSessionsChanged()
+        {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(RefreshTerminalSessions);
+                return;
+            }
+
+            RefreshTerminalSessions();
+        }
+
         private BranchTreeNode.Builder BuildBranchTree(List<Models.Branch> branches, List<Models.Remote> remotes, bool validateExpandedNodes = true)
         {
             var builder = new BranchTreeNode.Builder(_uiStates.LocalBranchSortMode, _uiStates.RemoteBranchSortMode);
@@ -1951,6 +2100,8 @@ namespace SourceGit.ViewModels
         private WorkingCopy _workingCopy = null;
         private StashesPage _stashesPage = null;
         private int _selectedViewIndex = 0;
+        private bool _isSessionsDashboardVisible = false;
+        private TerminalSession _selectedSession = null;
 
         private int _localBranchesCount = 0;
         private int _localChangesCount = 0;

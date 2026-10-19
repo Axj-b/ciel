@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SourceGit.ViewModels"
+             xmlns:v="using:SourceGit.Views"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
+             x:Class="SourceGit.Views.TerminalPage"
+             x:DataType="vm:Repository"
+             x:Name="ThisControl">
+  <Grid RowDefinitions="Auto,*">
+    <!-- Session Tabs -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource Brush.SubPanel}"
+            BorderThickness="0,0,0,1"
+            BorderBrush="{DynamicResource Brush.Border0}">
+      <Grid ColumnDefinitions="Auto,*,Auto" MinHeight="30">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="4,0,0,0">
+          <Button Classes="icon_button"
+                  Width="26" Height="26"
+                  Margin="0,2"
+                  Padding="0"
+                  Click="OnNewSessionMenu"
+                  ToolTip.Tip="{DynamicResource Text.Terminal.New}">
+            <Path Width="12" Height="12" Data="{StaticResource Icons.Plus}"/>
+          </Button>
+        </StackPanel>
+
+        <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+          <ItemsControl x:Name="TabStrip"
+                        IsHitTestVisible="True"
+                        ItemsSource="{Binding TerminalSessions, Mode=OneWay}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:TerminalSession">
+                <Border Height="26"
+                        Margin="4,2"
+                        CornerRadius="4"
+                        Background="{DynamicResource Brush.Window}"
+                        BorderThickness="1,0,0,0" BorderBrush="{DynamicResource Brush.Border0}"
+                        Tapped="OnSessionTabTapped">
+                  <StackPanel Orientation="Horizontal" Margin="8,0">
+                    <TextBlock Text="{Binding Title, Mode=OneWay}"
+                               VerticalAlignment="Center"
+                               FontSize="11"
+                               MaxWidth="220"
+                               TextTrimming="CharacterEllipsis"/>
+                    <Button Classes="icon_button"
+                            Width="16" Height="16"
+                            Margin="6,0,0,0"
+                            Padding="0"
+                            VerticalAlignment="Center"
+                            Click="OnSessionTabClosed">
+                      <Path Width="8" Height="8" Data="{StaticResource Icons.Close}"/>
+                    </Button>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,4,0">
+          <TextBlock Text="{Binding SelectedSession.StateText, Mode=OneWay}"
+                     Margin="0,0,8,0"
+                     VerticalAlignment="Center"
+                     FontSize="11"
+                     Foreground="{DynamicResource Brush.FG2}"/>
+          <Button Classes="icon_button"
+                  Width="26" Height="26"
+                  Margin="0,2"
+                  Padding="0"
+                  Click="OnRestartSelected"
+                  ToolTip.Tip="{DynamicResource Text.Terminal.Restart}">
+            <Path Width="12" Height="12" Data="{StaticResource Icons.Reset}"/>
+          </Button>
+          <Button Classes="icon_button"
+                  Width="26" Height="26"
+                  Margin="0,2"
+                  Padding="0"
+                  Click="OnKillSelected"
+                  ToolTip.Tip="{DynamicResource Text.Terminal.Kill}">
+            <Path Width="12" Height="12" Data="{StaticResource Icons.Terminal}"/>
+          </Button>
+          <Button Classes="icon_button"
+                  Width="26" Height="26"
+                  Margin="0,2"
+                  Padding="0"
+                  Click="OnCloseSelected"
+                  ToolTip.Tip="{DynamicResource Text.Terminal.Close}">
+            <Path Width="12" Height="12" Data="{StaticResource Icons.Close}"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Active Terminal -->
+    <Border Grid.Row="1" Background="{DynamicResource Brush.Window}">
+      <Panel>
+        <v:TerminalHost Session="{Binding SelectedSession, Mode=OneWay}"/>
+
+        <TextBlock Text="{DynamicResource Text.Terminal.Empty}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource Brush.FG2}"
+                   IsVisible="{Binding IsNoSessionAvailable, Mode=OneWay}"/>
+      </Panel>
+    </Border>
+  </Grid>
+</UserControl>

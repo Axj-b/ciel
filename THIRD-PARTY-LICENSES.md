@@ -67,6 +67,25 @@ The project uses the following third-party libraries or assets
 - **Version**: 2.30.15
 - **License**: Public Domain
 
+### Iciclecreek.Avalonia.Terminal
+
+- **Source**: https://github.com/tomlm/Iciclecreek.Avalonia.Terminal
+- **Version**: 1.0.12
+- **License**: MIT License
+- **License Link**: https://github.com/tomlm/Iciclecreek.Avalonia.Terminal/blob/main/LICENSE
+
+### XTerm.NET
+
+- **Source**: https://github.com/tomlm/XTerm.NET
+- **Version**: 1.0.12
+- **License**: MIT License
+
+### Porta.Pty
+
+- **Source**: https://github.com/tomlm/Porta.Pty
+- **Version**: 1.0.7
+- **License**: MIT License
+
 ## Fonts
 
 ### JetBrainsMono

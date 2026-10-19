@@ -582,6 +582,36 @@
             </Grid>
 
             <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
+              <Path Width="12" Height="12" Data="{StaticResource Icons.Terminal}"/>
+              <TextBlock Classes="bold" Margin="4,0,0,0" Text="{DynamicResource Text.Preferences.Terminal.Embedded}"/>
+            </StackPanel>
+            <Rectangle Margin="0,8" Fill="{DynamicResource Brush.Border2}" Height=".6" HorizontalAlignment="Stretch"/>
+            <Grid Margin="8,0,0,0" RowDefinitions="32,Auto">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="IntegrationLabel"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+
+              <Border Grid.Row="0" Grid.Column="0" Height="32" Margin="0,0,16,0">
+                <TextBlock Text="{DynamicResource Text.Preferences.Terminal.ShellCommand}" HorizontalAlignment="Right"/>
+              </Border>
+              <TextBox Grid.Row="0" Grid.Column="1"
+                       Height="28"
+                       CornerRadius="3"
+                       Text="{Binding TerminalShellCommand, Mode=TwoWay}"
+                       Watermark="{DynamicResource Text.Preferences.Terminal.ShellCommand.Placeholder}"/>
+
+              <Border Grid.Row="1" Grid.Column="0" Height="32" Margin="0,0,16,0">
+                <TextBlock Text="{DynamicResource Text.Preferences.Terminal.OpenCodeCommand}" HorizontalAlignment="Right"/>
+              </Border>
+              <TextBox Grid.Row="1" Grid.Column="1"
+                       Height="28"
+                       CornerRadius="3"
+                       Text="{Binding TerminalOpenCodeCommand, Mode=TwoWay}"
+                       Watermark="{DynamicResource Text.Preferences.Terminal.OpenCodeCommand.Placeholder}"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
               <Path Width="12" Height="12" Data="{StaticResource Icons.Diff}"/>
               <TextBlock Classes="bold" Margin="4,0,0,0" Text="{DynamicResource Text.Preferences.DiffMerge}"/>
             </StackPanel>

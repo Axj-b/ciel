@@ -545,6 +545,7 @@
   <x:String x:Key="Text.Hotkeys.Global.OpenPreferences" xml:space="preserve">Open Preferences dialog</x:String>
   <x:String x:Key="Text.Hotkeys.Global.ShowWorkspaceDropdownMenu" xml:space="preserve">Show workspace dropdown menu</x:String>
   <x:String x:Key="Text.Hotkeys.Global.SwitchTab" xml:space="preserve">Switch active tab</x:String>
+  <x:String x:Key="Text.Hotkeys.Global.ToggleEmbeddedTerminal" xml:space="preserve">Toggle embedded terminal</x:String>
   <x:String x:Key="Text.Hotkeys.Global.Zoom" xml:space="preserve">Zoom in/out</x:String>
   <x:String x:Key="Text.Hotkeys.Repo" xml:space="preserve">REPOSITORY</x:String>
   <x:String x:Key="Text.Hotkeys.Repo.Commit" xml:space="preserve">Commit staged changes</x:String>
@@ -563,6 +564,8 @@
   <x:String x:Key="Text.Hotkeys.Repo.ViewChanges" xml:space="preserve">Switch to 'Local Changes'</x:String>
   <x:String x:Key="Text.Hotkeys.Repo.ViewDashboard" xml:space="preserve">Switch to 'Dashboard'</x:String>
   <x:String x:Key="Text.Hotkeys.Repo.ViewStashes" xml:space="preserve">Switch to 'Stashes'</x:String>
+  <x:String x:Key="Text.Hotkeys.Repo.ViewTerminal" xml:space="preserve">Switch to 'Terminal'</x:String>
+  <x:String x:Key="Text.Hotkeys.Repo.ViewTerminalSessions" xml:space="preserve">Toggle terminal sessions view</x:String>
   <x:String x:Key="Text.Hunk.Discard" xml:space="preserve">Discard</x:String>
   <x:String x:Key="Text.Hunk.Stage" xml:space="preserve">Stage</x:String>
   <x:String x:Key="Text.Hunk.Unstage" xml:space="preserve">Unstage</x:String>
@@ -736,6 +739,11 @@
   <x:String x:Key="Text.Preferences.Shell.Args.Tip" xml:space="preserve">Please use '.' to indicate working directory</x:String>
   <x:String x:Key="Text.Preferences.Shell.Path" xml:space="preserve">Path</x:String>
   <x:String x:Key="Text.Preferences.Shell.Type" xml:space="preserve">Shell/Terminal</x:String>
+  <x:String x:Key="Text.Preferences.Terminal.Embedded" xml:space="preserve">EMBEDDED TERMINAL</x:String>
+  <x:String x:Key="Text.Preferences.Terminal.OpenCodeCommand" xml:space="preserve">OpenCode command</x:String>
+  <x:String x:Key="Text.Preferences.Terminal.OpenCodeCommand.Placeholder" xml:space="preserve">Auto-detect</x:String>
+  <x:String x:Key="Text.Preferences.Terminal.ShellCommand" xml:space="preserve">Shell command</x:String>
+  <x:String x:Key="Text.Preferences.Terminal.ShellCommand.Placeholder" xml:space="preserve">Auto-detect</x:String>
   <x:String x:Key="Text.PruneRemote" xml:space="preserve">Prune Remote</x:String>
   <x:String x:Key="Text.PruneRemote.Target" xml:space="preserve">Target:</x:String>
   <x:String x:Key="Text.PruneWorktrees" xml:space="preserve">Prune Worktrees</x:String>
@@ -1001,6 +1009,20 @@
   <x:String x:Key="Text.TagCM.DeleteMultiple" xml:space="preserve">Delete selected {0} tags...</x:String>
   <x:String x:Key="Text.TagCM.Merge" xml:space="preserve">Merge ${0}$ into ${1}$...</x:String>
   <x:String x:Key="Text.TagCM.Push" xml:space="preserve">Push ${0}$...</x:String>
+  <x:String x:Key="Text.Terminal" xml:space="preserve">Terminal</x:String>
+  <x:String x:Key="Text.Terminal.Close" xml:space="preserve">Close</x:String>
+  <x:String x:Key="Text.Terminal.Close.All" xml:space="preserve">Close all</x:String>
+  <x:String x:Key="Text.Terminal.Empty" xml:space="preserve">No terminal session in this repository yet — use the + button to start one.</x:String>
+  <x:String x:Key="Text.Terminal.Kill" xml:space="preserve">Kill</x:String>
+  <x:String x:Key="Text.Terminal.Kill.All" xml:space="preserve">Kill all</x:String>
+  <x:String x:Key="Text.Terminal.New" xml:space="preserve">New terminal session</x:String>
+  <x:String x:Key="Text.Terminal.Profile.OpenCode" xml:space="preserve">OpenCode</x:String>
+  <x:String x:Key="Text.Terminal.Profile.Shell" xml:space="preserve">Shell</x:String>
+  <x:String x:Key="Text.Terminal.Restart" xml:space="preserve">Restart</x:String>
+  <x:String x:Key="Text.Terminal.Sessions" xml:space="preserve">Terminal sessions</x:String>
+  <x:String x:Key="Text.Terminal.Sessions.Empty" xml:space="preserve">No terminal sessions running.</x:String>
+  <x:String x:Key="Text.Terminal.Sessions.Filter" xml:space="preserve">Filter sessions...</x:String>
+  <x:String x:Key="Text.Terminal.Sessions.Focus" xml:space="preserve">Focus</x:String>
   <x:String x:Key="Text.Terminate" xml:space="preserve">TERMINATE</x:String>
   <x:String x:Key="Text.TrustRepository" xml:space="preserve">Untrusted Repository</x:String>
   <x:String x:Key="Text.TrustRepository.CommandTip" xml:space="preserve">Do you want to run `git config --global --add safe.directory {0}` command to trust this path?</x:String>

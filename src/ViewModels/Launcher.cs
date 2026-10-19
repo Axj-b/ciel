@@ -209,6 +209,28 @@ namespace SourceGit.ViewModels
             ActivePage = Pages[prevIdx];
         }
 
+        /// <summary>
+        /// Activates the tab owning the given terminal session and shows its terminal page.
+        /// Used by the global sessions dashboard 'Focus' action.
+        /// </summary>
+        public void FocusTerminalSession(TerminalSession session)
+        {
+            if (session is null)
+                return;
+
+            foreach (var page in Pages)
+            {
+                if (page.Data is Repository repo && repo.FullPath.Equals(session.RepositoryPath, StringComparison.Ordinal))
+                {
+                    if (!ReferenceEquals(_activePage, page))
+                        ActivePage = page;
+
+                    repo.ShowTerminalPage(session);
+                    return;
+                }
+            }
+        }
+
         public void CloseTab(LauncherPage page)
         {
             if (Pages.Count == 1)

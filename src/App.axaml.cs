@@ -23,6 +23,13 @@ namespace SourceGit
         [STAThread]
         public static void Main(string[] args)
         {
+            // Capability hints for processes spawned inside the embedded terminal.
+            // opencode/OpenTUI reads COLORTERM to enable truecolor and skips palette probing.
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("COLORTERM")))
+                Environment.SetEnvironmentVariable("COLORTERM", "truecolor");
+            if (OperatingSystem.IsWindows() && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TERM")))
+                Environment.SetEnvironmentVariable("TERM", "xterm-256color");
+
             Native.OS.SetupBasicDirectories();
 
             AppDomain.CurrentDomain.UnhandledException += (_, e) =>
