@@ -2,6 +2,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>ciel</AssemblyName>
+    <AssemblyTitle>Ciel</AssemblyTitle>
     <ApplicationManifest>App.manifest</ApplicationManifest>
     <ApplicationIcon>App.ico</ApplicationIcon>
     <Version>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)\\..\\VERSION"))</Version>
@@ -9,14 +11,20 @@
     <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
     <InvariantGlobalization>false</InvariantGlobalization>
 
-    <Product>SourceGit</Product>
+    <Product>Ciel</Product>
     <Description>OpenSource GIT client</Description>
-    <Company>sourcegit-scm</Company>
-    <Copyright>Copyright © $([System.DateTime]::Now.Year) sourcegit-scm.</Copyright>
+    <Company>Axj-b</Company>
+    <Copyright>Copyright © $([System.DateTime]::Now.Year) Axj-b.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/sourcegit-scm/sourcegit.git</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/sourcegit-scm/sourcegit.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Axj-b/ciel</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Axj-b/ciel</RepositoryUrl>
     <RepositoryType>Public</RepositoryType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- This fork publishes its own releases, so the upstream SourceGit update feed is
+         disabled by default. Re-enable it with -p:DisableUpdateDetection=false. -->
+    <DisableUpdateDetection Condition="'$(DisableUpdateDetection)' == ''">true</DisableUpdateDetection>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release' and '$(DisableAOT)' != 'true'">
@@ -66,7 +74,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TrimmerRootAssembly Include="SourceGit" />
+    <TrimmerRootAssembly Include="$(AssemblyName)" />
     <TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
     <TrimmerRootAssembly Include="Iciclecreek.Avalonia.Terminal" />
     <TrimmerRootAssembly Include="XTerm.NET" />

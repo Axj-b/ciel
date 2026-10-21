@@ -67,7 +67,10 @@ jobs:
         run: dotnet publish src/SourceGit.csproj -c Release -o publish -r ${{ matrix.runtime }}
       - name: Rename executable file
         if: startsWith(matrix.runtime, 'linux-')
-        run: mv publish/SourceGit publish/sourcegit
+        run: mv publish/ciel publish/sourcegit
+      - name: Rename executable file (macOS bundle layout)
+        if: startsWith(matrix.runtime, 'osx-')
+        run: mv publish/ciel publish/SourceGit
       - name: Tar artifact
         if: startsWith(matrix.runtime, 'linux-') || startsWith(matrix.runtime, 'osx-')
         run: |

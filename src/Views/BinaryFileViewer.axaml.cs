@@ -134,7 +134,7 @@ namespace SourceGit.Views
 
             context.FillRectangle(Brushes.Transparent, new Rect(0, 0, Bounds.Width, Bounds.Height));
 
-            var typeface = new Typeface("fonts:SourceGit#JetBrains Mono NL");
+            var typeface = new Typeface("fonts:ciel#JetBrains Mono NL");
             var foreground = Foreground;
             var headerForeground = HeaderForeground;
             var highlightedBackground = new SolidColorBrush(Colors.Red, 0.2);

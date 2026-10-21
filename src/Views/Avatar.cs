@@ -69,7 +69,7 @@ namespace SourceGit.Views
             else if (!_useGitHubStyleAvatar)
             {
                 var fallback = GetFallbackString(_user.Name);
-                var typeface = new Typeface("fonts:SourceGit#JetBrains Mono NL");
+                var typeface = new Typeface("fonts:ciel#JetBrains Mono NL");
                 var label = new FormattedText(
                     fallback,
                     CultureInfo.CurrentCulture,

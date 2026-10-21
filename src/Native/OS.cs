@@ -148,6 +148,45 @@ namespace SourceGit.Native
             BasicDirectories = _backend.GetOrCreateDirectories();
         }
 
+        /// <summary>
+        /// Copies a configuration/cache directory left behind by the previous app name
+        /// (SourceGit) into its new location (Ciel) once. If the copy fails, the app still
+        /// starts with default settings instead of crashing.
+        /// </summary>
+        public static void MigrateLegacyDirectory(string legacyDir, string targetDir)
+        {
+            if (string.IsNullOrEmpty(legacyDir) || string.IsNullOrEmpty(targetDir))
+                return;
+
+            if (legacyDir.Equals(targetDir, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (Directory.Exists(targetDir) || !Directory.Exists(legacyDir))
+                return;
+
+            try
+            {
+                Directory.CreateDirectory(targetDir);
+
+                foreach (var dir in Directory.EnumerateDirectories(legacyDir, "*", SearchOption.AllDirectories))
+                    Directory.CreateDirectory(Path.Combine(targetDir, Path.GetRelativePath(legacyDir, dir)));
+
+                foreach (var file in Directory.EnumerateFiles(legacyDir, "*", SearchOption.AllDirectories))
+                {
+                    // Never carry a stale single-instance lock into the new data directory.
+                    var name = Path.GetFileName(file);
+                    if (name.EndsWith(".lock", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    File.Copy(file, Path.Combine(targetDir, Path.GetRelativePath(legacyDir, file)), false);
+                }
+            }
+            catch
+            {
+                // Best-effort migration.
+            }
+        }
+
         public static void SetupApp(AppBuilder builder)
         {
             _backend.SetupApp(builder);
