@@ -492,6 +492,12 @@ namespace SourceGit.ViewModels
             set;
         } = [];
 
+        public AvaloniaList<Models.GitAccount> GitAccounts
+        {
+            get;
+            set;
+        } = [];
+
         public double LastCheckUpdateTime
         {
             get => _lastCheckUpdateTime;

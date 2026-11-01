@@ -35,6 +35,26 @@ namespace SourceGit.ViewModels
             set => SetProperty(ref _sshKey, value);
         }
 
+        public List<Models.GitAccount> Accounts
+        {
+            get;
+        }
+
+        public Models.GitAccount SelectedAccount
+        {
+            get => _selectedAccount;
+            set
+            {
+                if (!SetProperty(ref _selectedAccount, value) || value == null)
+                    return;
+
+                if (string.IsNullOrEmpty(value.Id))
+                    SSHKey = string.Empty;
+                else if (!string.IsNullOrEmpty(value.PrivateSSHKey))
+                    SSHKey = value.PrivateSSHKey;
+            }
+        }
+
         [Required(ErrorMessage = "Parent folder is required")]
         [CustomValidation(typeof(Clone), nameof(ValidateParentFolder))]
         public string ParentFolder
@@ -93,6 +113,12 @@ namespace SourceGit.ViewModels
             Groups.Add(new TargetGroup(string.Empty, "Auto", "Based-on Default Clone Dir"));
             Groups.Add(new TargetGroup(string.Empty, "No Group", "Uncategorized"));
             CollectGroups(Groups, Preferences.Instance.RepositoryNodes);
+
+            Accounts = new List<Models.GitAccount>();
+            Accounts.Add(new Models.GitAccount() { Id = string.Empty, Name = App.Text("Configure.Git.Account.Custom") });
+            foreach (var account in Preferences.Instance.GitAccounts)
+                Accounts.Add(account);
+            SelectedAccount = Accounts[0];
 
             var activeWorkspace = Preferences.Instance.GetActiveWorkspace();
             _defaultCloneDir = activeWorkspace?.DefaultCloneDir;
@@ -155,11 +181,31 @@ namespace SourceGit.ViewModels
                 return false;
             }
 
-            if (_useSSH && !string.IsNullOrEmpty(_sshKey))
+            var account = _selectedAccount is { } selected && !string.IsNullOrEmpty(selected.Id) ? selected : null;
+            if (account != null)
             {
                 await new Commands.Config(path)
                     .Use(log)
-                    .SetAsync("remote.origin.sshkey", _sshKey);
+                    .SetAsync("user.name", account.UserName);
+
+                await new Commands.Config(path)
+                    .Use(log)
+                    .SetAsync("user.email", account.UserEmail);
+            }
+
+            // Apply the account's SSH key even for HTTPS clones: the repository may
+            // later gain SSH remotes, and keeping the key in the local config makes
+            // the account assignment self-contained.
+            var sshKey = account != null ? _sshKey : (_useSSH ? _sshKey : string.Empty);
+            if (account != null || !string.IsNullOrEmpty(sshKey))
+            {
+                await Commands.GitIdentityConfig.ApplyAsync(
+                    path,
+                    account,
+                    sshKey,
+                    account?.HTTPSUsername ?? string.Empty,
+                    account?.HTTPSHost ?? "github.com",
+                    log);
             }
 
             if (InitAndUpdateSubmodules && !token.IsCancellationRequested)
@@ -239,6 +285,7 @@ namespace SourceGit.ViewModels
         private string _remote = string.Empty;
         private bool _useSSH = false;
         private string _sshKey = string.Empty;
+        private Models.GitAccount _selectedAccount = null;
         private string _parentFolder = string.Empty;
         private string _defaultCloneDir = string.Empty;
         private string _local = string.Empty;

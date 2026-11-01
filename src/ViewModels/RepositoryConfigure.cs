@@ -21,6 +21,77 @@ namespace SourceGit.ViewModels
             set;
         }
 
+        public List<Models.GitAccount> Accounts
+        {
+            get;
+        }
+
+        public Models.GitAccount SelectedAccount
+        {
+            get => _selectedAccount;
+            set
+            {
+                var previous = _selectedAccount;
+                if (!SetProperty(ref _selectedAccount, value) || _isLoading || value == null)
+                    return;
+
+                if (string.IsNullOrEmpty(value.Id))
+                {
+                    // `Custom / Global` means this repository should not pin any
+                    // account values. Restore the values the user had before an
+                    // account was selected, or clear them when the repository was
+                    // already pinned to an account.
+                    if (_hasStashedIdentity)
+                    {
+                        UserName = _stashedUserName;
+                        UserEmail = _stashedUserEmail;
+                        SSHKey = _stashedSSHKey;
+                        HTTPSUsername = _stashedHTTPSUsername;
+                        _httpsHost = _stashedHTTPSHost;
+                        _hasStashedIdentity = false;
+                    }
+                    else
+                    {
+                        UserName = string.Empty;
+                        UserEmail = string.Empty;
+                        SSHKey = string.Empty;
+                        HTTPSUsername = string.Empty;
+                        _httpsHost = string.Empty;
+                    }
+                }
+                else
+                {
+                    if (previous != null && string.IsNullOrEmpty(previous.Id))
+                    {
+                        _stashedUserName = UserName;
+                        _stashedUserEmail = UserEmail;
+                        _stashedSSHKey = SSHKey;
+                        _stashedHTTPSUsername = HTTPSUsername;
+                        _stashedHTTPSHost = _httpsHost;
+                        _hasStashedIdentity = true;
+                    }
+
+                    UserName = value.UserName;
+                    UserEmail = value.UserEmail;
+                    SSHKey = value.PrivateSSHKey;
+                    HTTPSUsername = value.HTTPSUsername;
+                    _httpsHost = value.HTTPSHost;
+                }
+            }
+        }
+
+        public string SSHKey
+        {
+            get => _sshKey;
+            set => SetProperty(ref _sshKey, value);
+        }
+
+        public string HTTPSUsername
+        {
+            get => _httpsUsername;
+            set => SetProperty(ref _httpsUsername, value);
+        }
+
         public List<string> Remotes
         {
             get;
@@ -160,6 +231,11 @@ namespace SourceGit.ViewModels
             foreach (var remote in _repo.Remotes)
                 Remotes.Add(remote.Name);
 
+            Accounts = new List<Models.GitAccount>();
+            Accounts.Add(new Models.GitAccount() { Id = string.Empty, Name = App.Text("Configure.Git.Account.Custom") });
+            foreach (var account in Preferences.Instance.GitAccounts)
+                Accounts.Add(account);
+
             AvailableOpenAIServices = new List<string>() { "---" };
             foreach (var service in Preferences.Instance.OpenAIServices)
                 AvailableOpenAIServices.Add(service.Name);
@@ -182,6 +258,23 @@ namespace SourceGit.ViewModels
                 HttpProxy = proxy;
             if (_cached.TryGetValue("fetch.prune", out var prune))
                 EnablePruneOnFetch = (prune == "true");
+
+            _isLoading = true;
+            var identity = new Commands.Config(repo.FullPath).ReadAllLocal();
+            var accountId = identity.GetValueOrDefault(Commands.GitIdentityConfig.ACCOUNT, string.Empty);
+            SelectedAccount = Accounts.Find(x => x.Id == accountId) ?? Accounts[0];
+            SSHKey = identity.GetValueOrDefault(Commands.GitIdentityConfig.SSH_KEY, string.Empty);
+            if (string.IsNullOrEmpty(SSHKey))
+            {
+                var sshCommand = identity.GetValueOrDefault(Commands.GitIdentityConfig.CORE_SSH_COMMAND, string.Empty);
+                if (Models.GitAccount.IsGeneratedSSHCommand(sshCommand))
+                    SSHKey = Models.GitAccount.ExtractKeyFromSSHCommand(sshCommand);
+            }
+            HTTPSUsername = identity.GetValueOrDefault(Commands.GitIdentityConfig.HTTPS_USERNAME, string.Empty);
+            _httpsHost = identity.GetValueOrDefault(Commands.GitIdentityConfig.HTTPS_HOST, string.Empty);
+            if (string.IsNullOrEmpty(_httpsHost))
+                _httpsHost = SelectedAccount.HTTPSHost;
+            _isLoading = false;
 
             foreach (var rule in _repo.IssueTrackers)
             {
@@ -274,13 +367,27 @@ namespace SourceGit.ViewModels
         {
             _repo.Settings.Save();
 
-            await SetIfChangedAsync("user.name", UserName, "");
-            await SetIfChangedAsync("user.email", UserEmail, "");
+            var account = SelectedAccount is { } selected && !string.IsNullOrEmpty(selected.Id) ? selected : null;
+            if (account != null)
+            {
+                // An explicitly selected account must be pinned to this repository,
+                // even when its values match the current global git config.
+                await new Commands.Config(_repo.FullPath).SetAsync("user.name", UserName);
+                await new Commands.Config(_repo.FullPath).SetAsync("user.email", UserEmail);
+            }
+            else
+            {
+                await SetIfChangedAsync("user.name", UserName, "");
+                await SetIfChangedAsync("user.email", UserEmail, "");
+            }
+
             await SetIfChangedAsync("commit.gpgsign", GPGCommitSigningEnabled ? "true" : "false", "false");
             await SetIfChangedAsync("tag.gpgsign", GPGTagSigningEnabled ? "true" : "false", "false");
             await SetIfChangedAsync("user.signingkey", GPGUserSigningKey, "");
             await SetIfChangedAsync("http.proxy", HttpProxy, "");
             await SetIfChangedAsync("fetch.prune", EnablePruneOnFetch ? "true" : "false", "false");
+
+            await Commands.GitIdentityConfig.ApplyAsync(_repo.FullPath, account, SSHKey, HTTPSUsername, _httpsHost);
 
             await ApplyIssueTrackerChangesAsync();
         }
@@ -353,5 +460,16 @@ namespace SourceGit.ViewModels
         private Models.CommitTemplate _selectedCommitTemplate = null;
         private Models.IssueTracker _selectedIssueTracker = null;
         private Models.CustomAction _selectedCustomAction = null;
+        private Models.GitAccount _selectedAccount = null;
+        private string _sshKey = string.Empty;
+        private string _httpsUsername = string.Empty;
+        private string _httpsHost = string.Empty;
+        private bool _isLoading = false;
+        private bool _hasStashedIdentity = false;
+        private string _stashedUserName = string.Empty;
+        private string _stashedUserEmail = string.Empty;
+        private string _stashedSSHKey = string.Empty;
+        private string _stashedHTTPSUsername = string.Empty;
+        private string _stashedHTTPSHost = string.Empty;
     }
 }

@@ -208,7 +208,7 @@ namespace SourceGit.Commands
 
             // If an SSH private key was provided, sets the environment.
             if (!start.Environment.ContainsKey("GIT_SSH_COMMAND") && !string.IsNullOrEmpty(SSHKey))
-                start.Environment.Add("GIT_SSH_COMMAND", $"ssh -i '{SSHKey}' -o AddKeysToAgent=yes");
+                start.Environment.Add("GIT_SSH_COMMAND", Models.GitAccount.BuildSSHCommand(SSHKey));
 
             // Force the C locale on Unix, so that git's output (including fatal errors) can always be parsed.
             if (!OperatingSystem.IsWindows())
