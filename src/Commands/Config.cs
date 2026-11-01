@@ -23,45 +23,27 @@ namespace SourceGit.Commands
         public Dictionary<string, string> ReadAll()
         {
             Args = "config -l";
-
-            var output = ReadToEnd();
-            var rs = new Dictionary<string, string>();
-            if (output.IsSuccess)
-            {
-                var lines = output.StdOut.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
-                foreach (var line in lines)
-                {
-                    var parts = line.Split('=', 2);
-                    if (parts.Length == 2)
-                        rs[parts[0]] = parts[1];
-                }
-            }
-
-            return rs;
+            return ParseConfigOutput(ReadToEnd());
         }
 
         public async Task<Dictionary<string, string>> ReadAllAsync()
         {
             Args = "config -l";
-
             var output = await ReadToEndAsync().ConfigureAwait(false);
-            var rs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            if (output.IsSuccess)
-            {
-                var lines = output.StdOut.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
-                foreach (var line in lines)
-                {
-                    var parts = line.Split('=', 2);
-                    if (parts.Length == 2)
-                    {
-                        var key = parts[0];
-                        var value = parts[1];
-                        rs[key] = value;
-                    }
-                }
-            }
+            return ParseConfigOutput(output);
+        }
 
-            return rs;
+        public Dictionary<string, string> ReadAllLocal()
+        {
+            Args = "config --local -l";
+            return ParseConfigOutput(ReadToEnd());
+        }
+
+        public async Task<Dictionary<string, string>> ReadAllLocalAsync()
+        {
+            Args = "config --local -l";
+            var output = await ReadToEndAsync().ConfigureAwait(false);
+            return ParseConfigOutput(output);
         }
 
         public string Get(string key)
@@ -88,6 +70,23 @@ namespace SourceGit.Commands
                 Args = $"config {scope} {key} {value.Quoted()}";
 
             return await ExecAsync().ConfigureAwait(false);
+        }
+
+        private static Dictionary<string, string> ParseConfigOutput(Result output)
+        {
+            var rs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (output.IsSuccess)
+            {
+                var lines = output.StdOut.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+                foreach (var line in lines)
+                {
+                    var parts = line.Split('=', 2);
+                    if (parts.Length == 2)
+                        rs[parts[0]] = parts[1];
+                }
+            }
+
+            return rs;
         }
 
         private bool _isLocal = false;

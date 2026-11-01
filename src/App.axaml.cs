@@ -23,6 +23,13 @@ namespace SourceGit
         [STAThread]
         public static void Main(string[] args)
         {
+            // Capability hints for processes spawned inside the embedded terminal.
+            // opencode/OpenTUI reads COLORTERM to enable truecolor and skips palette probing.
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("COLORTERM")))
+                Environment.SetEnvironmentVariable("COLORTERM", "truecolor");
+            if (OperatingSystem.IsWindows() && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TERM")))
+                Environment.SetEnvironmentVariable("TERM", "xterm-256color");
+
             Native.OS.SetupBasicDirectories();
 
             AppDomain.CurrentDomain.UnhandledException += (_, e) =>
@@ -63,8 +70,8 @@ namespace SourceGit
             builder.ConfigureFonts(manager =>
             {
                 var monospace = new EmbeddedFontCollection(
-                    new Uri("fonts:SourceGit", UriKind.Absolute),
-                    new Uri("avares://SourceGit/Resources/Fonts", UriKind.Absolute));
+                    new Uri("fonts:ciel", UriKind.Absolute),
+                    new Uri("avares://ciel/Resources/Fonts", UriKind.Absolute));
                 manager.AddFontCollection(monospace);
             });
 
@@ -191,7 +198,7 @@ namespace SourceGit
             {
                 if (!string.IsNullOrEmpty(defaultFont))
                 {
-                    monospaceFont = $"fonts:SourceGit#JetBrains Mono NL,{defaultFont}";
+                    monospaceFont = $"fonts:ciel#JetBrains Mono NL,{defaultFont}";
                     resDic.Add("Fonts.Monospace", FontFamily.Parse(monospaceFont));
                 }
             }

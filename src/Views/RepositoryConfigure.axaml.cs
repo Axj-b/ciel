@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -32,6 +34,31 @@ namespace SourceGit.Views
             var selected = await StorageProvider.OpenFilePickerAsync(options);
             if (selected.Count == 1 && DataContext is ViewModels.RepositoryConfigure vm)
                 vm.ConventionalTypesOverride = selected[0].Path.LocalPath;
+
+            e.Handled = true;
+        }
+
+        private async void SelectSSHKeyFile(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ViewModels.RepositoryConfigure vm)
+                return;
+
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var startupDir = Path.Combine(home, ".ssh");
+            if (!Directory.Exists(startupDir))
+                startupDir = home;
+
+            var suggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(startupDir);
+            var options = new FilePickerOpenOptions()
+            {
+                AllowMultiple = false,
+                FileTypeFilter = [new("SSHKey") { Patterns = ["*"] }],
+                SuggestedStartLocation = suggestedStartLocation,
+            };
+
+            var selected = await StorageProvider.OpenFilePickerAsync(options);
+            if (selected.Count == 1)
+                vm.SSHKey = selected[0].Path.LocalPath;
 
             e.Handled = true;
         }

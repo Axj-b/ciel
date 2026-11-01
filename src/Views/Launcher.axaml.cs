@@ -1,10 +1,12 @@
 using System;
+using System.Linq;
 
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 
 namespace SourceGit.Views
 {
@@ -43,6 +45,10 @@ namespace SourceGit.Views
 
             InitializeComponent();
             PositionChanged += OnPositionChanged;
+
+            // Terminal shortcuts (Ctrl+`, Ctrl+4, Ctrl+5) must work while the embedded
+            // terminal itself has keyboard focus; tunnel them before it can consume input.
+            AddHandler(InputElement.KeyDownEvent, OnPreviewKeyDownTunnel, RoutingStrategies.Tunnel);
 
             var layout = ViewModels.Preferences.Instance.Layout;
             Width = layout.LauncherWidth;
@@ -131,6 +137,14 @@ namespace SourceGit.Views
             if (DataContext is not ViewModels.Launcher vm)
                 return;
 
+            // While the embedded terminal has keyboard focus, keystrokes belong to the shell;
+            // page-level shortcuts must not fire (Ctrl+`, Ctrl+4, Ctrl+5 are tunneled instead).
+            if (IsFocusInsideTerminal())
+            {
+                base.OnKeyDown(e);
+                return;
+            }
+
             // Check for AltGr (which is detected as Ctrl+Alt)
             bool isAltGr = e.KeyModifiers.HasFlag(KeyModifiers.Control) &&
                            e.KeyModifiers.HasFlag(KeyModifiers.Alt);
@@ -168,13 +182,22 @@ namespace SourceGit.Views
                 }
             }
 
-            // Ctrl+` to open terminal. On macOS, Cmd+` is used to switch between windows
-            if (e is { Key: Key.OemTilde, KeyModifiers: KeyModifiers.Control })
+            // Ctrl+` toggles the embedded terminal of the active repository; Ctrl+Shift+` opens
+            // an external terminal window. (When the embedded terminal itself has focus, the
+            // tunnel handler already consumed Ctrl+` and this block is not reached.)
+            if (e.Key == Key.OemTilde && e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Alt))
             {
-                if (vm.ActivePage.Data is ViewModels.Repository repo)
-                    Native.OS.OpenTerminal(repo.FullPath);
+                if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                {
+                    if (vm.ActivePage.Data is ViewModels.Repository externalRepo)
+                        Native.OS.OpenTerminal(externalRepo.FullPath);
+                    else
+                        ViewModels.Welcome.Instance.OpenTerminal();
+                }
                 else
-                    ViewModels.Welcome.Instance.OpenTerminal();
+                {
+                    ToggleEmbeddedTerminal(vm);
+                }
 
                 e.Handled = true;
                 return;
@@ -267,6 +290,18 @@ namespace SourceGit.Views
                             repo.SelectedViewIndex = 2;
                             e.Handled = true;
                             return;
+                        case Key.D4 or Key.NumPad4:
+                            repo.SelectedViewIndex = 3;
+                            e.Handled = true;
+                            return;
+                        case Key.D5 or Key.NumPad5:
+                            repo.ToggleSessionsDashboard();
+                            e.Handled = true;
+                            return;
+                        case Key.D6 or Key.NumPad6 when !repo.IsBare:
+                            repo.SelectedViewIndex = 4;
+                            e.Handled = true;
+                            return;
                         case Key.P when e.KeyModifiers.HasFlag(KeyModifiers.Shift):
                             vm.CommandPalette = new ViewModels.RepositoryCommandPalette(repo);
                             e.Handled = true;
@@ -316,6 +351,73 @@ namespace SourceGit.Views
             }
 
             base.OnKeyDown(e);
+        }
+
+        /// <summary>
+        /// Tunnel: keeps Ctrl+`/Ctrl+4/Ctrl+5 working when the embedded terminal consumes input.
+        /// </summary>
+        private void OnPreviewKeyDownTunnel(object sender, KeyEventArgs e)
+        {
+            if (DataContext is not ViewModels.Launcher vm)
+                return;
+
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Alt))
+                return;
+
+            // Ctrl+` (without Shift) toggles the embedded terminal everywhere.
+            if (e.Key == Key.OemTilde &&
+                e.KeyModifiers.HasFlag(KeyModifiers.Control) &&
+                !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                if (vm.ActivePage.Data is ViewModels.Repository)
+                {
+                    ToggleEmbeddedTerminal(vm);
+                    e.Handled = true;
+                }
+
+                return;
+            }
+
+            // Ctrl+4 / Ctrl+5 switch to terminal page / toggle sessions dashboard.
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control) &&
+                !e.KeyModifiers.HasFlag(KeyModifiers.Shift) &&
+                vm.ActivePage.Data is ViewModels.Repository repo)
+            {
+                switch (e.Key)
+                {
+                    case Key.D4 or Key.NumPad4:
+                        repo.SelectedViewIndex = 3;
+                        e.Handled = true;
+                        break;
+                    case Key.D5 or Key.NumPad5:
+                        repo.ToggleSessionsDashboard();
+                        e.Handled = true;
+                        break;
+                    case Key.D6 or Key.NumPad6 when !repo.IsBare:
+                        repo.SelectedViewIndex = 4;
+                        e.Handled = true;
+                        break;
+                }
+            }
+        }
+
+        /// <summary>Switch between the terminal page and the previously used page.</summary>
+        private void ToggleEmbeddedTerminal(ViewModels.Launcher vm)
+        {
+            if (vm.ActivePage.Data is not ViewModels.Repository repo)
+                return;
+
+            if (repo.IsSessionsDashboardVisible || repo.SelectedViewIndex == 3)
+                repo.SelectedViewIndex = 1;
+            else
+                repo.SelectedViewIndex = 3;
+        }
+
+        private bool IsFocusInsideTerminal()
+        {
+            return this.GetVisualDescendants()
+                .OfType<Iciclecreek.Terminal.TerminalView>()
+                .Any(v => v.IsKeyboardFocusWithin);
         }
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)

@@ -1,10 +1,10 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <ResourceDictionary.MergedDictionaries>
-    <ResourceInclude Source="avares://SourceGit/Resources/Locales/en_US.axaml"/>
+    <ResourceInclude Source="avares://ciel/Resources/Locales/en_US.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 
   <x:String x:Key="Text.About" xml:space="preserve">情報</x:String>
-  <x:String x:Key="Text.About.Menu" xml:space="preserve">SourceGit について</x:String>
+  <x:String x:Key="Text.About.Menu" xml:space="preserve">Ciel について</x:String>
   <x:String x:Key="Text.About.ReleaseDate" xml:space="preserve">リリース日: {0}</x:String>
   <x:String x:Key="Text.About.ReleaseNotes" xml:space="preserve">リリースノート</x:String>
   <x:String x:Key="Text.About.SubTitle" xml:space="preserve">オープンソース &amp; フリーな Git GUI クライアント</x:String>
@@ -21,7 +21,7 @@
   <x:String x:Key="Text.AIAssistant.Regen" xml:space="preserve">再生成</x:String>
   <x:String x:Key="Text.AIAssistant.Tip" xml:space="preserve">AI を使用してコミットメッセージを生成</x:String>
   <x:String x:Key="Text.AIAssistant.Use" xml:space="preserve">使用</x:String>
-  <x:String x:Key="Text.App.Hide" xml:space="preserve">SourceGit を隠す</x:String>
+  <x:String x:Key="Text.App.Hide" xml:space="preserve">Ciel を隠す</x:String>
   <x:String x:Key="Text.App.HideOthers" xml:space="preserve">他を隠す</x:String>
   <x:String x:Key="Text.App.ShowAll" xml:space="preserve">すべて表示</x:String>
   <x:String x:Key="Text.Apply.3Way" xml:space="preserve">3 分割マージ</x:String>
@@ -41,7 +41,7 @@
   <x:String x:Key="Text.Archive.File.Placeholder" xml:space="preserve">アーカイブファイルへのパスを選択</x:String>
   <x:String x:Key="Text.Archive.Revision" xml:space="preserve">リビジョン:</x:String>
   <x:String x:Key="Text.Archive.Title" xml:space="preserve">アーカイブ化</x:String>
-  <x:String x:Key="Text.Askpass" xml:space="preserve">SourceGit Askpass</x:String>
+  <x:String x:Key="Text.Askpass" xml:space="preserve">Ciel Askpass</x:String>
   <x:String x:Key="Text.Askpass.Passphrase" xml:space="preserve">パスフレーズを入力:</x:String>
   <x:String x:Key="Text.AssumeUnchanged" xml:space="preserve">未変更と見なしたファイル</x:String>
   <x:String x:Key="Text.AssumeUnchanged.Empty" xml:space="preserve">未変更と見なしたファイルはありません</x:String>
@@ -1070,4 +1070,22 @@
   <x:String x:Key="Text.Worktree.Remove" xml:space="preserve">削除</x:String>
   <x:String x:Key="Text.Worktree.Unlock" xml:space="preserve">ロックを解除</x:String>
   <x:String x:Key="Text.Yes" xml:space="preserve">はい</x:String>
+  <x:String x:Key="Text.Editor" xml:space="preserve">Editor</x:String>
+  <x:String x:Key="Text.Editor.DiscardChanges" xml:space="preserve">{0} has unsaved changes. Discard them and reload the file from disk?</x:String>
+  <x:String x:Key="Text.Editor.Empty" xml:space="preserve">No file opened</x:String>
+  <x:String x:Key="Text.Editor.Empty.Hint" xml:space="preserve">Double-click a file in the tree to start editing it.</x:String>
+  <x:String x:Key="Text.Editor.FileNotFound" xml:space="preserve">{0} does not exist in the working tree anymore.</x:String>
+  <x:String x:Key="Text.Editor.FileTooLarge" xml:space="preserve">{0} is too large to open in the editor (limit: 8 MB).</x:String>
+  <x:String x:Key="Text.Editor.Filter" xml:space="preserve">Filter files...</x:String>
+  <x:String x:Key="Text.Editor.LoadFailed" xml:space="preserve">Failed to open {0}: {1}</x:String>
+  <x:String x:Key="Text.Editor.OpenInEditor" xml:space="preserve">Edit in Editor</x:String>
+  <x:String x:Key="Text.Editor.OverwriteExternalChanges" xml:space="preserve">{0} was changed outside the editor since it was opened. Overwrite those changes?</x:String>
+  <x:String x:Key="Text.Editor.ReadOnly" xml:space="preserve">READ-ONLY</x:String>
+  <x:String x:Key="Text.Editor.Refresh" xml:space="preserve">Refresh file list</x:String>
+  <x:String x:Key="Text.Editor.Reload" xml:space="preserve">Reload from disk</x:String>
+  <x:String x:Key="Text.Editor.Save" xml:space="preserve">Save</x:String>
+  <x:String x:Key="Text.Editor.SaveFailed" xml:space="preserve">Failed to save {0}: {1}</x:String>
+  <x:String x:Key="Text.Editor.UnsavedChanges" xml:space="preserve">{0} has unsaved changes. Close it anyway?</x:String>
+  <x:String x:Key="Text.Editor.WordWrap" xml:space="preserve">Word wrap</x:String>
+  <x:String x:Key="Text.Editor.ReadOnlyFile" xml:space="preserve">{0} is read-only and cannot be saved.</x:String>
 </ResourceDictionary>

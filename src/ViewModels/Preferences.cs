@@ -259,6 +259,30 @@ namespace SourceGit.ViewModels
             set;
         } = 10;
 
+        public int TerminalFontSize
+        {
+            get;
+            set;
+        } = 14;
+
+        public int TerminalScrollback
+        {
+            get;
+            set;
+        } = 5000;
+
+        public string TerminalShellCommand
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string TerminalOpenCodeCommand
+        {
+            get;
+            set;
+        } = string.Empty;
+
         public bool IgnoreWhitespaceChangesInDiff
         {
             get => _ignoreWhitespaceChangesInDiff;
@@ -463,6 +487,12 @@ namespace SourceGit.ViewModels
         } = [];
 
         public AvaloniaList<AI.Service> OpenAIServices
+        {
+            get;
+            set;
+        } = [];
+
+        public AvaloniaList<Models.GitAccount> GitAccounts
         {
             get;
             set;

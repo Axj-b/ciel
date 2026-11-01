@@ -126,20 +126,20 @@ namespace SourceGit.Models
             if (string.IsNullOrEmpty(runtimeDir) || !Directory.Exists(runtimeDir))
                 return new LockFile(Path.Combine(Native.OS.BasicDirectories.CacheDir, "process.lock"), false);
 
-            return new LockFile(Path.Combine(runtimeDir, "sourcegit.instance.lock"), true);
+            return new LockFile(Path.Combine(runtimeDir, "ciel.instance.lock"), true);
         }
 
         private string GetPipeName()
         {
-            // SourceGit does not support multiple instances on macOS, so we can use a fixed pipe name for macOS.
+            // Ciel does not support multiple instances on macOS, so we can use a fixed pipe name for macOS.
             if (OperatingSystem.IsMacOS())
-                return "SourceGit";
+                return "Ciel";
 
-            // Windows and Linux can have multiple instances of SourceGit running (portable-mode), so we need to generate a unique pipe name based on the data directory.
+            // Windows and Linux can have multiple instances of Ciel running (portable-mode), so we need to generate a unique pipe name based on the data directory.
             var dataDir = Native.OS.BasicDirectories.CacheDir.Replace('\\', '/').TrimEnd('/');
             var hashStr = $"{Environment.UserName}_{dataDir}";
             var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(hashStr))).Substring(0, 10);
-            return $"SG_{hash}";
+            return $"CIEL_{hash}";
         }
 
         private async void StartServer()

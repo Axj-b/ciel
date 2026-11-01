@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 using Avalonia;
@@ -129,6 +130,18 @@ namespace SourceGit.Views
             set => SetAndRaise(SelectedCustomActionProperty, ref _selectedCustomAction, value);
         }
 
+        public static readonly DirectProperty<Preferences, Models.GitAccount> SelectedGitAccountProperty =
+            AvaloniaProperty.RegisterDirect<Preferences, Models.GitAccount>(
+                nameof(SelectedGitAccount),
+                static o => o.SelectedGitAccount,
+                static (o, v) => o.SelectedGitAccount = v);
+
+        public Models.GitAccount SelectedGitAccount
+        {
+            get => _selectedGitAccount;
+            set => SetAndRaise(SelectedGitAccountProperty, ref _selectedGitAccount, value);
+        }
+
         public Preferences()
         {
             var pref = ViewModels.Preferences.Instance;
@@ -169,6 +182,9 @@ namespace SourceGit.Views
 
             UpdateGitVersion();
             InitializeComponent();
+
+            if (pref.GitAccounts.Count > 0)
+                SelectedGitAccount = pref.GitAccounts[0];
         }
 
         protected override async void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -483,6 +499,61 @@ namespace SourceGit.Views
             e.Handled = true;
         }
 
+        private void OnAddGitAccount(object sender, RoutedEventArgs e)
+        {
+            var account = new Models.GitAccount() { Name = App.Text("Preferences.Accounts.New") };
+            ViewModels.Preferences.Instance.GitAccounts.Add(account);
+            SelectedGitAccount = account;
+
+            e.Handled = true;
+        }
+
+        private void OnRemoveSelectedGitAccount(object sender, RoutedEventArgs e)
+        {
+            if (SelectedGitAccount == null)
+                return;
+
+            ViewModels.Preferences.Instance.GitAccounts.Remove(SelectedGitAccount);
+            SelectedGitAccount = null;
+            e.Handled = true;
+        }
+
+        private async void SelectSSHKeyForAccount(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button { DataContext: Models.GitAccount account })
+                return;
+
+            var toplevel = TopLevel.GetTopLevel(this);
+            if (toplevel == null)
+                return;
+
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var startupDir = Path.Combine(home, ".ssh");
+            if (!Directory.Exists(startupDir))
+                startupDir = home;
+
+            var suggestedStartLocation = await toplevel.StorageProvider.TryGetFolderFromPathAsync(startupDir);
+            var options = new FilePickerOpenOptions()
+            {
+                AllowMultiple = false,
+                FileTypeFilter = [new("SSHKey") { Patterns = ["*"] }],
+                SuggestedStartLocation = suggestedStartLocation,
+            };
+
+            try
+            {
+                var selected = await toplevel.StorageProvider.OpenFilePickerAsync(options);
+                if (selected.Count == 1)
+                    account.PrivateSSHKey = selected[0].Path.LocalPath;
+            }
+            catch (Exception ex)
+            {
+                await new Alert().ShowAsync(this, $"Failed to select SSH private key: {ex.Message}", true);
+            }
+
+            e.Handled = true;
+        }
+
         private void OnMoveSelectedCustomActionUp(object sender, RoutedEventArgs e)
         {
             if (SelectedCustomAction == null)
@@ -528,5 +599,6 @@ namespace SourceGit.Views
         private string _gpgExecutableFile = string.Empty;
         private AI.Service _selectedOpenAIService = null;
         private Models.CustomAction _selectedCustomAction = null;
+        private Models.GitAccount _selectedGitAccount = null;
     }
 }

@@ -1,0 +1,145 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SourceGit.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
+             x:Class="SourceGit.Views.SessionsDashboard"
+             x:DataType="vm:Repository">
+  <Grid RowDefinitions="Auto,*">
+    <!-- Header -->
+    <Border Background="{DynamicResource Brush.SubPanel}"
+            BorderThickness="0,0,0,1"
+            BorderBrush="{DynamicResource Brush.Border0}">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" Margin="6,4">
+        <TextBlock Text="{DynamicResource Text.Terminal.Sessions}"
+                   VerticalAlignment="Center"
+                   FontWeight="Bold"
+                   FontSize="12"/>
+        <TextBox x:Name="FilterBox"
+                 Grid.Column="1"
+                 Width="200"
+                 Margin="8,0"
+                 Padding="4"
+                 MinHeight="26"
+                 FontSize="11"
+                 Watermark="{DynamicResource Text.Terminal.Sessions.Filter}"
+                 TextChanged="OnFilterChanged"/>
+        <Button Grid.Column="2"
+                Margin="8,0"
+                Padding="8,2"
+                MinHeight="26"
+                FontSize="11"
+                Click="OnKillAll"
+                Content="{DynamicResource Text.Terminal.Kill.All}"/>
+        <Button Grid.Column="3"
+                Margin="8,0"
+                Padding="8,2"
+                MinHeight="26"
+                FontSize="11"
+                Click="OnCloseAll"
+                Content="{DynamicResource Text.Terminal.Close.All}"/>
+        <Button Grid.Column="4"
+                Classes="icon_button"
+                Width="26" Height="26"
+                Margin="8,0,0,0"
+                Padding="0"
+                Click="OnCloseDashboard"
+                ToolTip.Tip="{DynamicResource Text.Close}">
+          <Path Width="10" Height="10" Data="{StaticResource Icons.Close}"/>
+        </Button>
+      </Grid>
+    </Border>
+
+    <!-- Rows -->
+    <Border Grid.Row="1" Background="{DynamicResource Brush.Contents}">
+      <Panel>
+        <ListBox x:Name="Rows"
+                 Padding="4"
+                 SelectionMode="Single">
+          <ListBox.ItemTemplate>
+            <DataTemplate DataType="vm:TerminalSession">
+              <Border Padding="8,4">
+                <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
+                  <Ellipse Width="8" Height="8"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"
+                           Fill="{DynamicResource Brush.FG2}"
+                           IsVisible="{Binding !IsRunning}"/>
+                  <Ellipse Width="8" Height="8"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"
+                           Fill="{DynamicResource Brush.Accent}"
+                           IsVisible="{Binding IsRunning}"/>
+
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding RepositoryName}"
+                             VerticalAlignment="Center"
+                             FontSize="11"
+                             MinWidth="100"
+                             Foreground="{DynamicResource Brush.FG1}"/>
+
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding Title}"
+                             VerticalAlignment="Center"
+                             FontSize="11"
+                             Margin="8,0"
+                             TextTrimming="CharacterEllipsis"
+                             Foreground="{DynamicResource Brush.FG2}"/>
+
+                  <TextBlock Grid.Column="3"
+                             Text="{Binding Profile}"
+                             VerticalAlignment="Center"
+                             FontSize="10"
+                             Margin="0,0,12,0"
+                             Foreground="{DynamicResource Brush.FG2}"/>
+
+                  <TextBlock Grid.Column="4"
+                             Text="{Binding StateText}"
+                             VerticalAlignment="Center"
+                             FontSize="10"
+                             Margin="0,0,12,0"
+                             MinWidth="60"
+                             Foreground="{DynamicResource Brush.FG2}"/>
+
+                  <Button Grid.Column="5"
+                          Margin="0,0,4,0"
+                          Padding="8,2"
+                          MinHeight="24"
+                          FontSize="11"
+                          Click="OnFocusRow"
+                          Content="{DynamicResource Text.Terminal.Sessions.Focus}"/>
+
+                  <Button Grid.Column="6"
+                          Margin="0,0,4,0"
+                          Padding="8,2"
+                          MinHeight="24"
+                          FontSize="11"
+                          Click="OnKillRow"
+                          Content="{DynamicResource Text.Terminal.Kill}"/>
+
+                  <Button Grid.Column="7"
+                          Margin="0,0,4,0"
+                          Padding="8,2"
+                          MinHeight="24"
+                          FontSize="11"
+                          Click="OnCloseRow"
+                          Content="{DynamicResource Text.Terminal.Close}"/>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock x:Name="EmptyHint"
+                   Text="{DynamicResource Text.Terminal.Sessions.Empty}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource Brush.FG2}"
+                   FontSize="12"/>
+      </Panel>
+    </Border>
+  </Grid>
+</UserControl>

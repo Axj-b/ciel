@@ -58,8 +58,14 @@ namespace SourceGit.Native
             }
 
             // XDG Base Directory Specification: https://specifications.freedesktop.org/basedir/latest/
-            dirs.ConfigDir = GetXdgDirectory("XDG_CONFIG_HOME", Path.Combine(home, ".config"), "SourceGit");
-            dirs.CacheDir = GetXdgDirectory("XDG_CACHE_HOME", Path.Combine(home, ".cache"), "SourceGit");
+            var legacyConfigDir = GetXdgDirectory("XDG_CONFIG_HOME", Path.Combine(home, ".config"), "SourceGit");
+            var legacyCacheDir = GetXdgDirectory("XDG_CACHE_HOME", Path.Combine(home, ".cache"), "SourceGit");
+            dirs.ConfigDir = GetXdgDirectory("XDG_CONFIG_HOME", Path.Combine(home, ".config"), "Ciel");
+            dirs.CacheDir = GetXdgDirectory("XDG_CACHE_HOME", Path.Combine(home, ".cache"), "Ciel");
+
+            // Copy the data of the previous app name (SourceGit) once.
+            OS.MigrateLegacyDirectory(legacyConfigDir, dirs.ConfigDir);
+            OS.MigrateLegacyDirectory(legacyCacheDir, dirs.CacheDir);
 
             // If the app basic dirs already exist, we can skip the migration step
             if (Directory.Exists(dirs.ConfigDir) && Directory.Exists(dirs.CacheDir))

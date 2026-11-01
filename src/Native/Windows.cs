@@ -66,9 +66,10 @@ namespace SourceGit.Native
             }
             else
             {
-                var appDataDir = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "SourceGit");
+                var appDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var appDataDir = Path.Combine(appDataRoot, "Ciel");
+
+                OS.MigrateLegacyDirectory(Path.Combine(appDataRoot, "SourceGit"), appDataDir);
 
                 if (!Directory.Exists(appDataDir))
                     Directory.CreateDirectory(appDataDir);

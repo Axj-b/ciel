@@ -44,32 +44,79 @@
           <TextBlock Classes="tab_header" Text="{DynamicResource Text.Configure.Git}"/>
         </TabItem.Header>
 
-        <Grid Margin="16,4,16,8" RowDefinitions="32,32,32,32,32,32,32,32,32,32,32,32" ColumnDefinitions="Auto,*">
+        <Grid Margin="16,4,16,8" RowDefinitions="32,32,32,32,32,32,32,32,32,32,32,32,32,32,32" ColumnDefinitions="Auto,*">
           <TextBlock Grid.Row="0" Grid.Column="0"
                      HorizontalAlignment="Right" VerticalAlignment="Center"
                      Margin="0,0,8,0"
+                     Text="{DynamicResource Text.Configure.Git.Account}"/>
+          <ComboBox Grid.Row="0" Grid.Column="1"
+                    Height="28" Padding="8,0"
+                    VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                    ItemsSource="{Binding Accounts}"
+                    SelectedItem="{Binding SelectedAccount, Mode=TwoWay}"
+                    ToolTip.Tip="{DynamicResource Text.Configure.Git.Account.Tip}">
+            <ComboBox.ItemTemplate>
+              <DataTemplate DataType="m:GitAccount">
+                <StackPanel Orientation="Horizontal" Height="20" VerticalAlignment="Center">
+                  <Path Margin="0,2,8,0" Width="14" Height="14" Fill="{DynamicResource Brush.FG1}" Data="{StaticResource Icons.User}"/>
+                  <TextBlock Text="{Binding Name}"/>
+                  <TextBlock Margin="8,0,0,0" Text="{Binding UserEmail}" FontSize="10" Foreground="{DynamicResource Brush.FG2}"/>
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+
+          <TextBlock Grid.Row="1" Grid.Column="0"
+                     HorizontalAlignment="Right" VerticalAlignment="Center"
+                     Margin="0,0,8,0"
                      Text="{DynamicResource Text.Configure.User}"/>
-          <TextBox Grid.Row="0" Grid.Column="1"
+          <TextBox Grid.Row="1" Grid.Column="1"
                    Height="28"
                    CornerRadius="3"
                    Watermark="{DynamicResource Text.Configure.User.Placeholder}"
                    Text="{Binding UserName, Mode=TwoWay}"/>
 
-          <TextBlock Grid.Row="1" Grid.Column="0"
+          <TextBlock Grid.Row="2" Grid.Column="0"
                      HorizontalAlignment="Right" VerticalAlignment="Center"
                      Margin="0,0,8,0"
                      Text="{DynamicResource Text.Configure.Email}"/>
-          <TextBox Grid.Row="1" Grid.Column="1"
+          <TextBox Grid.Row="2" Grid.Column="1"
                    Height="28"
                    CornerRadius="3"
                    Watermark="{DynamicResource Text.Configure.Email.Placeholder}"
                    Text="{Binding UserEmail, Mode=TwoWay}"/>
 
-          <TextBlock Grid.Row="2" Grid.Column="0"
+          <TextBlock Grid.Row="3" Grid.Column="0"
+                     HorizontalAlignment="Right" VerticalAlignment="Center"
+                     Margin="0,0,8,0"
+                     Text="{DynamicResource Text.Configure.Git.SSHKey}"/>
+          <TextBox Grid.Row="3" Grid.Column="1"
+                   Height="28"
+                   CornerRadius="3"
+                   Watermark="{DynamicResource Text.Configure.Git.SSHKey.Placeholder}"
+                   Text="{Binding SSHKey, Mode=TwoWay}">
+            <TextBox.InnerRightContent>
+              <Button Classes="icon_button" Width="30" Height="30" Click="SelectSSHKeyFile">
+                <Path Data="{StaticResource Icons.Folder.Open}" Fill="{DynamicResource Brush.FG1}"/>
+              </Button>
+            </TextBox.InnerRightContent>
+          </TextBox>
+
+          <TextBlock Grid.Row="4" Grid.Column="0"
+                     HorizontalAlignment="Right" VerticalAlignment="Center"
+                     Margin="0,0,8,0"
+                     Text="{DynamicResource Text.Configure.Git.HTTPSUsername}"/>
+          <TextBox Grid.Row="4" Grid.Column="1"
+                   Height="28"
+                   CornerRadius="3"
+                   Watermark="{DynamicResource Text.Configure.Git.HTTPSUsername.Placeholder}"
+                   Text="{Binding HTTPSUsername, Mode=TwoWay}"/>
+
+          <TextBlock Grid.Row="5" Grid.Column="0"
                      HorizontalAlignment="Right" VerticalAlignment="Center"
                      Margin="0,0,8,0"
                      Text="{DynamicResource Text.Configure.Git.DefaultRemote}"/>
-          <ComboBox Grid.Row="2" Grid.Column="1"
+          <ComboBox Grid.Row="5" Grid.Column="1"
                     Height="28" Padding="8,0"
                     VerticalAlignment="Center" HorizontalAlignment="Stretch"
                     ItemsSource="{Binding Remotes}"
@@ -84,11 +131,11 @@
             </ComboBox.ItemTemplate>
           </ComboBox>
 
-          <TextBlock Grid.Row="3" Grid.Column="0"
+          <TextBlock Grid.Row="6" Grid.Column="0"
                      HorizontalAlignment="Right" VerticalAlignment="Center"
                      Margin="0,0,8,0"
                      Text="{DynamicResource Text.Configure.Git.PreferredMergeMode}"/>
-          <ComboBox Grid.Row="3" Grid.Column="1"
+          <ComboBox Grid.Row="6" Grid.Column="1"
                     Height="28" Padding="8,0"
                     VerticalAlignment="Center" HorizontalAlignment="Stretch"
                     ItemsSource="{Binding Source={x:Static m:MergeMode.Supported}}"
@@ -120,11 +167,11 @@
             </ComboBox.SelectionBoxItemTemplate>
           </ComboBox>
 
-          <TextBlock Grid.Row="4" Grid.Column="0"
+          <TextBlock Grid.Row="7" Grid.Column="0"
                      HorizontalAlignment="Right" VerticalAlignment="Center"
                      Margin="0,0,8,0"
                      Text="{DynamicResource Text.Configure.Proxy}"/>
-          <TextBox Grid.Row="4" Grid.Column="1"
+          <TextBox Grid.Row="7" Grid.Column="1"
                    Height="28"
                    CornerRadius="3"
                    Watermark="{DynamicResource Text.Configure.Proxy.Placeholder}"
@@ -136,21 +183,21 @@
             </TextBox.InnerRightContent>
           </TextBox>
 
-          <TextBlock Grid.Row="5" Grid.Column="0"
+          <TextBlock Grid.Row="8" Grid.Column="0"
                      HorizontalAlignment="Right" VerticalAlignment="Center"
                      Margin="0,0,8,0"
                      Text="{DynamicResource Text.Preferences.GPG.UserKey}"/>
-          <TextBox Grid.Row="5" Grid.Column="1"
+          <TextBox Grid.Row="8" Grid.Column="1"
                    Height="28"
                    CornerRadius="3"
                    Watermark="{DynamicResource Text.Preferences.GPG.UserKey.Placeholder}"
                    Text="{Binding GPGUserSigningKey, Mode=TwoWay}"/>
 
-          <TextBlock Grid.Row="6" Grid.Column="0"
+          <TextBlock Grid.Row="9" Grid.Column="0"
                      Text="{DynamicResource Text.Configure.Git.ConventionalTypesOverride}"
                      HorizontalAlignment="Right"
                      Margin="0,0,8,0"/>
-          <TextBox Grid.Row="6" Grid.Column="1"
+          <TextBox Grid.Row="9" Grid.Column="1"
                    Height="28"
                    CornerRadius="3"
                    Text="{Binding ConventionalTypesOverride, Mode=TwoWay}">
@@ -161,26 +208,26 @@
             </TextBox.InnerRightContent>
           </TextBox>
 
-          <CheckBox Grid.Row="7" Grid.Column="1"
+          <CheckBox Grid.Row="10" Grid.Column="1"
                     Content="{DynamicResource Text.Preferences.GPG.CommitEnabled}"
                     IsChecked="{Binding GPGCommitSigningEnabled, Mode=TwoWay}"
                     ToolTip.Tip="commit.gpgsign=true"/>
 
-          <CheckBox Grid.Row="8" Grid.Column="1"
+          <CheckBox Grid.Row="11" Grid.Column="1"
                     Content="{DynamicResource Text.Preferences.GPG.TagEnabled}"
                     IsChecked="{Binding GPGTagSigningEnabled, Mode=TwoWay}"
                     ToolTip.Tip="tag.gpgsign=true"/>
 
-          <CheckBox Grid.Row="9" Grid.Column="1"
+          <CheckBox Grid.Row="12" Grid.Column="1"
                     Content="{DynamicResource Text.Preferences.Git.EnablePruneOnFetch}"
                     IsChecked="{Binding EnablePruneOnFetch, Mode=TwoWay}"
                     ToolTip.Tip="fetch.prune=true"/>
 
-          <CheckBox Grid.Row="10" Grid.Column="1"
+          <CheckBox Grid.Row="13" Grid.Column="1"
                     Content="{DynamicResource Text.Configure.Git.EnableRecursiveWhenAutoUpdatingSubmodules}"
                     IsChecked="{Binding EnableRecursiveWhenAutoUpdatingSubmodules, Mode=TwoWay}"/>
 
-          <CheckBox Grid.Row="11" Grid.Column="1"
+          <CheckBox Grid.Row="14" Grid.Column="1"
                     Content="{DynamicResource Text.Configure.Git.AskBeforeAutoUpdatingSubmodules}"
                     IsChecked="{Binding AskBeforeAutoUpdatingSubmodules, Mode=TwoWay}"/>
         </Grid>

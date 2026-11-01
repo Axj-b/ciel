@@ -53,7 +53,7 @@ namespace SourceGit.Views
             if (_change == null || Bounds.Width <= 0)
                 return;
 
-            var typeface = new Typeface("fonts:SourceGit#JetBrains Mono NL");
+            var typeface = new Typeface("fonts:ciel#JetBrains Mono NL");
             var idx = (int)(_isUnstagedChange ? _change.WorkTree : _change.Index);
             var indicator = INDICATOR[idx];
             var color = COLOR[idx];
