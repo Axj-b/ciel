@@ -74,8 +74,14 @@ namespace SourceGit.ViewModels
             // attach): defer the launch, and never schedule the deferral twice.
             if (!view.IsInitialized)
             {
-                if (_launchPending.Add(session.Id))
-                    view.Initialized += (_, _) => LaunchInBackground(session);
+                if (_deferredLaunches.Add(session.Id))
+                {
+                    view.Initialized += (_, _) =>
+                    {
+                        _deferredLaunches.Remove(session.Id);
+                        LaunchInBackground(session);
+                    };
+                }
 
                 return;
             }
@@ -123,6 +129,7 @@ namespace SourceGit.ViewModels
             {
                 session.IsRunning = false;
                 session.ExitCode = 0;
+                Native.OS.LogException(ex);
                 Models.Notification.Send(session.RepositoryPath,
                     $"Failed to start '{session.ProcessName}' in the embedded terminal:\n{ex.Message}", true);
             }
@@ -155,6 +162,8 @@ namespace SourceGit.ViewModels
 
             Sessions.Remove(session);
             SessionsChanged?.Invoke();
+            _deferredLaunches.Remove(session.Id);
+            _launchPending.Remove(session.Id);
 
             var view = session.View;
             if (view is null)
@@ -438,5 +447,6 @@ namespace SourceGit.ViewModels
 
         private static string _openCodeNpmProbe = null;
         private static readonly HashSet<string> _launchPending = new();
+        private static readonly HashSet<string> _deferredLaunches = new();
     }
 }

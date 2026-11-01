@@ -83,8 +83,15 @@ The project uses the following third-party libraries or assets
 ### Porta.Pty
 
 - **Source**: https://github.com/tomlm/Porta.Pty
-- **Version**: 1.0.7
+- **Version**: 2.2.3
 - **License**: MIT License
+
+### Microsoft.Windows.Console.ConPTY
+
+- **Source**: https://github.com/microsoft/terminal
+- **Version**: 1.24.260710001
+- **License**: MIT License
+- **License Link**: https://github.com/microsoft/terminal/blob/main/LICENSE
 
 ## Fonts
 
