@@ -298,6 +298,10 @@ namespace SourceGit.Views
                             repo.ToggleSessionsDashboard();
                             e.Handled = true;
                             return;
+                        case Key.D6 or Key.NumPad6 when !repo.IsBare:
+                            repo.SelectedViewIndex = 4;
+                            e.Handled = true;
+                            return;
                         case Key.P when e.KeyModifiers.HasFlag(KeyModifiers.Shift):
                             vm.CommandPalette = new ViewModels.RepositoryCommandPalette(repo);
                             e.Handled = true;
@@ -387,6 +391,10 @@ namespace SourceGit.Views
                         break;
                     case Key.D5 or Key.NumPad5:
                         repo.ToggleSessionsDashboard();
+                        e.Handled = true;
+                        break;
+                    case Key.D6 or Key.NumPad6 when !repo.IsBare:
+                        repo.SelectedViewIndex = 4;
                         e.Handled = true;
                         break;
                 }

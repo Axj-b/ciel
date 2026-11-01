@@ -302,6 +302,7 @@ namespace SourceGit.Views
                 if (!change.IsConflicted && !selection.HasFolder)
                 {
                     TryAddOpenFileToContextMenu(menu, path);
+                    TryAddEditInEditorToContextMenu(menu, repo, change.Path, path);
 
                     var diffWithMerger = new MenuItem();
                     diffWithMerger.Header = App.Text("OpenInExternalMergeTool");
@@ -987,6 +988,7 @@ namespace SourceGit.Views
                 if (!selection.HasFolder)
                 {
                     TryAddOpenFileToContextMenu(menu, path);
+                    TryAddEditInEditorToContextMenu(menu, repo, change.Path, path);
 
                     var openWithMerger = new MenuItem();
                     openWithMerger.Header = App.Text("OpenInExternalMergeTool");
@@ -1335,6 +1337,24 @@ namespace SourceGit.Views
             }
 
             return menu;
+        }
+
+        private void TryAddEditInEditorToContextMenu(ContextMenu menu, ViewModels.Repository repo, string relativePath, string fullpath)
+        {
+            var edit = new MenuItem();
+            edit.Header = App.Text("Editor.OpenInEditor");
+            edit.Icon = this.CreateMenuIcon("Icons.Edit");
+            edit.IsEnabled = File.Exists(fullpath);
+            if (edit.IsEnabled)
+            {
+                edit.Click += async (_, ev) =>
+                {
+                    await repo.OpenEditorPageAtAsync(relativePath);
+                    ev.Handled = true;
+                };
+            }
+
+            menu.Items.Add(edit);
         }
 
         private void TryAddOpenFileToContextMenu(ContextMenu menu, string fullpath)

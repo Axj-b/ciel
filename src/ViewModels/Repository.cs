@@ -149,6 +149,11 @@ namespace SourceGit.ViewModels
             get => _stashesPage;
         }
 
+        public EditorPage EditorPage
+        {
+            get => _editorPage;
+        }
+
         public bool IsDashboardVisible
         {
             get => !_isSessionsDashboardVisible && SelectedViewIndex == 0;
@@ -169,6 +174,11 @@ namespace SourceGit.ViewModels
             get => !_isSessionsDashboardVisible && SelectedViewIndex == 3;
         }
 
+        public bool IsEditorVisible
+        {
+            get => !IsBare && !_isSessionsDashboardVisible && SelectedViewIndex == 4;
+        }
+
         /// <summary>Reacts to TerminalService registry updates and keeps the filtered list in sync.</summary>
         public void NewTerminalSession(string profile = TerminalSession.ShellProfile)
         {
@@ -186,6 +196,18 @@ namespace SourceGit.ViewModels
 
             SelectedSession = session;
             SelectedViewIndex = 3;
+        }
+
+        /// <summary>Opens the editor page and reveals the given repository relative file.</summary>
+        public async Task OpenEditorPageAtAsync(string path)
+        {
+            if (IsBare)
+                return;
+
+            SelectedViewIndex = 4;
+
+            if (_editorPage != null)
+                await _editorPage.OpenFileAndRevealAsync(path);
         }
 
         public void ToggleSessionsDashboard()
@@ -244,6 +266,7 @@ namespace SourceGit.ViewModels
             OnPropertyChanged(nameof(IsWorkingCopyVisible));
             OnPropertyChanged(nameof(IsStashesVisible));
             OnPropertyChanged(nameof(IsTerminalVisible));
+            OnPropertyChanged(nameof(IsEditorVisible));
         }
 
         public string Filter
@@ -586,6 +609,7 @@ namespace SourceGit.ViewModels
             _histories = new Histories(this);
             _workingCopy = new WorkingCopy(this) { CommitMessage = _uiStates.LastCommitMessage };
             _stashesPage = new StashesPage(this);
+            _editorPage = new EditorPage(this);
             _selectedViewIndex = Preferences.Instance.ShowLocalChangesByDefault ? 1 : 0;
             _lastFetchTime = DateTime.Now;
             _autoFetchTimer = new Timer(AutoFetchByTimer, null, 5000, 5000);
@@ -619,6 +643,7 @@ namespace SourceGit.ViewModels
 
             _watcher?.Dispose();
             _autoFetchTimer.Dispose();
+            _editorPage?.Cleanup();
         }
 
         public void SendNotification(string message, bool isError = false)
@@ -1486,6 +1511,7 @@ namespace SourceGit.ViewModels
                     LocalChangesCount = changes.Count;
                     OnPropertyChanged(nameof(InProgressContext));
                     GetOwnerPage()?.ChangeDirtyState(Models.DirtyState.HasLocalChanges, changes.Count == 0);
+                    _editorPage?.OnWorkingCopyChanged();
                 });
             }, token);
         }
@@ -2099,6 +2125,7 @@ namespace SourceGit.ViewModels
         private Histories _histories = null;
         private WorkingCopy _workingCopy = null;
         private StashesPage _stashesPage = null;
+        private EditorPage _editorPage = null;
         private int _selectedViewIndex = 0;
         private bool _isSessionsDashboardVisible = false;
         private TerminalSession _selectedSession = null;

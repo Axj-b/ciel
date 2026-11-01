@@ -123,6 +123,17 @@
           </ToolTip.Tip>
           <Path Classes="icon" Data="{StaticResource Icons.Terminal}"/>
         </ListBoxItem>
+
+        <ListBoxItem IsVisible="{Binding !IsBare}" ToolTip.Placement="Right">
+          <ToolTip.Tip>
+            <TextBlock>
+              <Run Text="{DynamicResource Text.Editor}" Foreground="{DynamicResource Brush.FG1}"/>
+              <Run Text=" "/>
+              <Run Text="{OnPlatform Ctrl+6, macOS=⌘+6}" FontSize="11" Foreground="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForeground}"/>
+            </TextBlock>
+          </ToolTip.Tip>
+          <Path Classes="icon" Data="{StaticResource Icons.Edit}"/>
+        </ListBoxItem>
       </ListBox>
 
       <!-- Global sessions dashboard (independent of the selected rail page) -->
@@ -841,6 +852,11 @@
               <!-- Terminal Page -->
               <Border IsVisible="{Binding IsTerminalVisible, Mode=OneWay}" PropertyChanged="OnRightPagePropertyChanged">
                 <v:TerminalPage/>
+              </Border>
+
+              <!-- Editor Page -->
+              <Border IsVisible="{Binding IsEditorVisible, Mode=OneWay}" PropertyChanged="OnRightPagePropertyChanged">
+                <v:EditorPage DataContext="{Binding EditorPage, Mode=OneWay}"/>
               </Border>
 
               <!-- Sessions Dashboard Page (global, overlays any right page) -->

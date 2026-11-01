@@ -1022,4 +1022,22 @@
   <x:String x:Key="Text.Worktree.Remove" xml:space="preserve">Αφαίρεση</x:String>
   <x:String x:Key="Text.Worktree.Unlock" xml:space="preserve">Ξεκλείδωμα</x:String>
   <x:String x:Key="Text.Yes" xml:space="preserve">ΝΑΙ</x:String>
+  <x:String x:Key="Text.Editor" xml:space="preserve">Editor</x:String>
+  <x:String x:Key="Text.Editor.DiscardChanges" xml:space="preserve">{0} has unsaved changes. Discard them and reload the file from disk?</x:String>
+  <x:String x:Key="Text.Editor.Empty" xml:space="preserve">No file opened</x:String>
+  <x:String x:Key="Text.Editor.Empty.Hint" xml:space="preserve">Double-click a file in the tree to start editing it.</x:String>
+  <x:String x:Key="Text.Editor.FileNotFound" xml:space="preserve">{0} does not exist in the working tree anymore.</x:String>
+  <x:String x:Key="Text.Editor.FileTooLarge" xml:space="preserve">{0} is too large to open in the editor (limit: 8 MB).</x:String>
+  <x:String x:Key="Text.Editor.Filter" xml:space="preserve">Filter files...</x:String>
+  <x:String x:Key="Text.Editor.LoadFailed" xml:space="preserve">Failed to open {0}: {1}</x:String>
+  <x:String x:Key="Text.Editor.OpenInEditor" xml:space="preserve">Edit in Editor</x:String>
+  <x:String x:Key="Text.Editor.OverwriteExternalChanges" xml:space="preserve">{0} was changed outside the editor since it was opened. Overwrite those changes?</x:String>
+  <x:String x:Key="Text.Editor.ReadOnly" xml:space="preserve">READ-ONLY</x:String>
+  <x:String x:Key="Text.Editor.Refresh" xml:space="preserve">Refresh file list</x:String>
+  <x:String x:Key="Text.Editor.Reload" xml:space="preserve">Reload from disk</x:String>
+  <x:String x:Key="Text.Editor.Save" xml:space="preserve">Save</x:String>
+  <x:String x:Key="Text.Editor.SaveFailed" xml:space="preserve">Failed to save {0}: {1}</x:String>
+  <x:String x:Key="Text.Editor.UnsavedChanges" xml:space="preserve">{0} has unsaved changes. Close it anyway?</x:String>
+  <x:String x:Key="Text.Editor.WordWrap" xml:space="preserve">Word wrap</x:String>
+  <x:String x:Key="Text.Editor.ReadOnlyFile" xml:space="preserve">{0} is read-only and cannot be saved.</x:String>
 </ResourceDictionary>
