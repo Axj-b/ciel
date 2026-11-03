@@ -575,6 +575,11 @@ $1, $2, … Werte der Eingabe-Steuerelemente</x:String>
   <x:String x:Key="Text.Launcher.OpenRepository" xml:space="preserve">Repositorys öffnen</x:String>
   <x:String x:Key="Text.Launcher.Pages" xml:space="preserve">Registerkarten</x:String>
   <x:String x:Key="Text.Launcher.Workspaces" xml:space="preserve">Arbeitsumgebungen</x:String>
+  <x:String x:Key="Text.Markdown.Label" xml:space="preserve">MARKDOWN</x:String>
+  <x:String x:Key="Text.Markdown.Copy" xml:space="preserve">Copy</x:String>
+  <x:String x:Key="Text.Markdown.Footnotes" xml:space="preserve">Footnotes</x:String>
+  <x:String x:Key="Text.Markdown.TooLarge" xml:space="preserve">This document is too large to preview (limit: 2 MB).</x:String>
+  <x:String x:Key="Text.Markdown.RenderFailed" xml:space="preserve">Failed to render this markdown document.</x:String>
   <x:String x:Key="Text.Merge" xml:space="preserve">Branch mergen</x:String>
   <x:String x:Key="Text.Merge.Edit" xml:space="preserve">Merge-Nachricht anpassen</x:String>
   <x:String x:Key="Text.Merge.Into" xml:space="preserve">Ziel-Branch:</x:String>
@@ -1043,6 +1048,9 @@ $1, $2, … Werte der Eingabe-Steuerelemente</x:String>
   <x:String x:Key="Text.Editor.Save" xml:space="preserve">Save</x:String>
   <x:String x:Key="Text.Editor.SaveFailed" xml:space="preserve">Failed to save {0}: {1}</x:String>
   <x:String x:Key="Text.Editor.UnsavedChanges" xml:space="preserve">{0} has unsaved changes. Close it anyway?</x:String>
+  <x:String x:Key="Text.Editor.View.Source" xml:space="preserve">Source</x:String>
+  <x:String x:Key="Text.Editor.View.Split" xml:space="preserve">Split</x:String>
+  <x:String x:Key="Text.Editor.View.Rendered" xml:space="preserve">Rendered</x:String>
   <x:String x:Key="Text.Editor.WordWrap" xml:space="preserve">Word wrap</x:String>
   <x:String x:Key="Text.Editor.ReadOnlyFile" xml:space="preserve">{0} is read-only and cannot be saved.</x:String>
 </ResourceDictionary>

@@ -37,8 +37,10 @@ namespace SourceGit.Models
 
     public class RevisionTextFile
     {
+        public string Repository { get; set; } = string.Empty;
         public string FileName { get; set; }
         public string Content { get; set; }
+        public bool IsMarkdown => MarkdownHelper.IsMarkdownFile(FileName);
     }
 
     public class RevisionLFSObject

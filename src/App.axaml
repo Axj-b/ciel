@@ -36,6 +36,7 @@
     <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
     <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
     <StyleInclude Source="/Resources/Styles.axaml"/>
+    <StyleInclude Source="/Resources/Markdown.axaml"/>
   </Application.Styles>
 
   <NativeMenu.Menu>

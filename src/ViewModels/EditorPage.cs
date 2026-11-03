@@ -48,6 +48,8 @@ namespace SourceGit.ViewModels
 
                     OnPropertyChanged(nameof(HasSelectedTab));
                     OnPropertyChanged(nameof(IsSelectedTabReadOnly));
+                    OnPropertyChanged(nameof(IsSelectedTabMarkdown));
+                    RaiseViewModeProperties();
                 }
             }
         }
@@ -55,6 +57,58 @@ namespace SourceGit.ViewModels
         public bool HasSelectedTab => _selectedTab != null;
 
         public bool IsSelectedTabReadOnly => _selectedTab?.IsReadOnly == true;
+
+        public bool IsSelectedTabMarkdown => _selectedTab?.IsMarkdown == true;
+
+        /// <summary>
+        ///     Markdown files default to the rendered view. The last mode selected by the user is
+        ///     remembered for the lifetime of the process, not persisted across restarts.
+        /// </summary>
+        public MarkdownViewMode ViewMode
+        {
+            get => IsSelectedTabMarkdown ? s_sessionMarkdownMode : MarkdownViewMode.Source;
+            set
+            {
+                if (!IsSelectedTabMarkdown || s_sessionMarkdownMode == value)
+                    return;
+
+                s_sessionMarkdownMode = value;
+                RaiseViewModeProperties();
+            }
+        }
+
+        public bool IsSourceMode => ViewMode == MarkdownViewMode.Source;
+
+        public bool IsSplitMode => ViewMode == MarkdownViewMode.Split;
+
+        public bool IsRenderMode => ViewMode == MarkdownViewMode.Render;
+
+        public bool IsEditorVisible => HasSelectedTab && ViewMode != MarkdownViewMode.Render;
+
+        public bool IsPreviewVisible => HasSelectedTab && ViewMode != MarkdownViewMode.Source;
+
+        public bool IsSplitVisible => HasSelectedTab && ViewMode == MarkdownViewMode.Split;
+
+        public string ViewModeToolTip => ViewMode switch
+        {
+            MarkdownViewMode.Source => App.Text("Editor.View.Source"),
+            MarkdownViewMode.Split => App.Text("Editor.View.Split"),
+            _ => App.Text("Editor.View.Rendered"),
+        };
+
+        /// <summary>Cycles markdown view modes: rendered -> split -> source -> rendered.</summary>
+        public void CycleViewMode()
+        {
+            if (!IsSelectedTabMarkdown)
+                return;
+
+            ViewMode = ViewMode switch
+            {
+                MarkdownViewMode.Render => MarkdownViewMode.Split,
+                MarkdownViewMode.Split => MarkdownViewMode.Source,
+                _ => MarkdownViewMode.Render,
+            };
+        }
 
         public EditorFileTreeNode SelectedRow
         {
@@ -452,6 +506,18 @@ namespace SourceGit.ViewModels
                 SelectedTab = Tabs[Math.Min(index, Tabs.Count - 1)];
         }
 
+        private void RaiseViewModeProperties()
+        {
+            OnPropertyChanged(nameof(ViewMode));
+            OnPropertyChanged(nameof(IsSourceMode));
+            OnPropertyChanged(nameof(IsSplitMode));
+            OnPropertyChanged(nameof(IsRenderMode));
+            OnPropertyChanged(nameof(IsEditorVisible));
+            OnPropertyChanged(nameof(IsPreviewVisible));
+            OnPropertyChanged(nameof(IsSplitVisible));
+            OnPropertyChanged(nameof(ViewModeToolTip));
+        }
+
         private readonly Repository _repo;
         private EditorFileTreeNode _tree = new() { IsFolder = true, IsExpanded = true };
         private readonly HashSet<string> _expandedFolders = new(StringComparer.Ordinal);
@@ -466,5 +532,6 @@ namespace SourceGit.ViewModels
         private bool _closed = false;
         private bool _refreshPending = false;
         private Task _loadingTask = null;
+        private static MarkdownViewMode s_sessionMarkdownMode = MarkdownViewMode.Render;
     }
 }

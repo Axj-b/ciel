@@ -147,7 +147,7 @@ namespace SourceGit.ViewModels
                     return new FileHistoriesRevisionFile(_file, rlfs, true);
                 }
 
-                var txt = new Models.RevisionTextFile() { FileName = obj.Path, Content = content };
+                var txt = new Models.RevisionTextFile() { Repository = _repo, FileName = obj.Path, Content = content };
                 return new FileHistoriesRevisionFile(_file, txt, true);
             }
 

@@ -116,7 +116,7 @@
               BorderThickness="0,0,0,1"
               BorderBrush="{DynamicResource Brush.Border0}"
               IsVisible="{Binding HasSelectedTab}">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" Height="30" Margin="4,0">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" Height="30" Margin="4,0">
           <Button Grid.Column="0"
                   Classes="icon_button"
                   Width="26" Height="26"
@@ -144,8 +144,22 @@
                         ToolTip.Tip="{DynamicResource Text.Editor.WordWrap}">
             <Path Width="14" Height="14" Data="{StaticResource Icons.WordWrap}"/>
           </ToggleButton>
+          <Button Grid.Column="3"
+                  Classes="icon_button"
+                  Width="26" Height="26"
+                  Margin="0,2"
+                  Padding="0"
+                  Click="OnCycleViewMode"
+                  IsVisible="{Binding IsSelectedTabMarkdown}"
+                  ToolTip.Tip="{Binding ViewModeToolTip}">
+            <Panel Width="14" Height="14">
+              <Path Width="14" Height="14" Data="{StaticResource Icons.Edit}" IsVisible="{Binding IsSourceMode}"/>
+              <Path Width="14" Height="14" Data="{StaticResource Icons.SplitView}" IsVisible="{Binding IsSplitMode}"/>
+              <Path Width="14" Height="14" Data="{StaticResource Icons.Eye}" IsVisible="{Binding IsRenderMode}"/>
+            </Panel>
+          </Button>
 
-          <TextBlock Grid.Column="3"
+          <TextBlock Grid.Column="4"
                      Margin="8,0"
                      VerticalAlignment="Center"
                      Foreground="{DynamicResource Brush.FG2}"
@@ -157,11 +171,31 @@
 
       <!-- Content -->
       <Panel Grid.Row="2" Background="{DynamicResource Brush.Window}">
-        <v:CodeEditor x:Name="Editor"
-                      IsVisible="{Binding HasSelectedTab}"
-                      FontFamily="{DynamicResource Fonts.Monospace}"
-                      FontSize="{Binding Source={x:Static vm:Preferences.Instance}, Path=EditorFontSize}"
-                      TabWidth="{Binding Source={x:Static vm:Preferences.Instance}, Path=EditorTabWidth}"/>
+        <Grid x:Name="EditorPanel" IsVisible="{Binding HasSelectedTab}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <v:CodeEditor Grid.Column="0"
+                        x:Name="Editor"
+                        FontFamily="{DynamicResource Fonts.Monospace}"
+                        FontSize="{Binding Source={x:Static vm:Preferences.Instance}, Path=EditorFontSize}"
+                        TabWidth="{Binding Source={x:Static vm:Preferences.Instance}, Path=EditorTabWidth}"/>
+
+          <GridSplitter Grid.Column="1"
+                        x:Name="EditorSplitter"
+                        Width="4"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"
+                        Focusable="False"/>
+
+          <v:MarkdownView Grid.Column="2"
+                          x:Name="Preview"
+                          IsVisible="False"/>
+        </Grid>
 
         <StackPanel HorizontalAlignment="Center"
                     VerticalAlignment="Center"
