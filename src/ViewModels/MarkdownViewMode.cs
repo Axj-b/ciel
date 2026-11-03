@@ -5,5 +5,6 @@ namespace SourceGit.ViewModels
         Source,
         Split,
         Render,
+        Inline,
     }
 }

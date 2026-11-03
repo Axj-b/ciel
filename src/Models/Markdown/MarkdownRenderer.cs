@@ -66,11 +66,21 @@ namespace SourceGit.Models
 
                 var control = BuildBlock(block, false);
                 if (control != null)
+                {
+                    var span = block.Span;
+                    control.Tag = new MarkdownBlockSource(span.Start, System.Math.Max(0, span.End - span.Start));
                     host.Children.Add(control);
+                }
             }
 
             if (footnotes is { Count: > 0 })
                 BuildFootnotes(footnotes, host);
+        }
+
+        /// <summary>Renders a single block, used by the source peek in the editor page.</summary>
+        public Control RenderBlock(Block block)
+        {
+            return block == null ? null : BuildBlock(block, false);
         }
 
         private Control BuildBlock(Block block, bool tight)

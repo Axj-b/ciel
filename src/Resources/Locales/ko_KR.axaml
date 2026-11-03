@@ -551,6 +551,10 @@
   <x:String x:Key="Text.Markdown.Footnotes" xml:space="preserve">Footnotes</x:String>
   <x:String x:Key="Text.Markdown.TooLarge" xml:space="preserve">This document is too large to preview (limit: 2 MB).</x:String>
   <x:String x:Key="Text.Markdown.RenderFailed" xml:space="preserve">Failed to render this markdown document.</x:String>
+  <x:String x:Key="Text.Markdown.Edit.Title" xml:space="preserve">EDIT MARKDOWN</x:String>
+  <x:String x:Key="Text.Markdown.Edit.Apply" xml:space="preserve">APPLY</x:String>
+  <x:String x:Key="Text.Markdown.Edit.Hint" xml:space="preserve">Ctrl+Enter to apply · Esc to cancel · Alt+Click to edit links</x:String>
+  <x:String x:Key="Text.Markdown.Peek.Title" xml:space="preserve">PREVIEW</x:String>
   <x:String x:Key="Text.Merge" xml:space="preserve">브랜치 병합</x:String>
   <x:String x:Key="Text.Merge.Edit" xml:space="preserve">병합 메시지 수정</x:String>
   <x:String x:Key="Text.Merge.Into" xml:space="preserve">대상:</x:String>
@@ -1014,6 +1018,7 @@
   <x:String x:Key="Text.Editor.View.Source" xml:space="preserve">Source</x:String>
   <x:String x:Key="Text.Editor.View.Split" xml:space="preserve">Split</x:String>
   <x:String x:Key="Text.Editor.View.Rendered" xml:space="preserve">Rendered</x:String>
+  <x:String x:Key="Text.Editor.View.Inline" xml:space="preserve">Edit in place</x:String>
   <x:String x:Key="Text.Editor.WordWrap" xml:space="preserve">Word wrap</x:String>
   <x:String x:Key="Text.Editor.ReadOnlyFile" xml:space="preserve">{0} is read-only and cannot be saved.</x:String>
 </ResourceDictionary>

@@ -83,7 +83,11 @@ namespace SourceGit.ViewModels
 
         public bool IsRenderMode => ViewMode == MarkdownViewMode.Render;
 
-        public bool IsEditorVisible => HasSelectedTab && ViewMode != MarkdownViewMode.Render;
+        public bool IsInlineMode => ViewMode == MarkdownViewMode.Inline;
+
+        public bool IsEditorVisible => HasSelectedTab &&
+                                       ViewMode != MarkdownViewMode.Render &&
+                                       ViewMode != MarkdownViewMode.Inline;
 
         public bool IsPreviewVisible => HasSelectedTab && ViewMode != MarkdownViewMode.Source;
 
@@ -93,10 +97,11 @@ namespace SourceGit.ViewModels
         {
             MarkdownViewMode.Source => App.Text("Editor.View.Source"),
             MarkdownViewMode.Split => App.Text("Editor.View.Split"),
+            MarkdownViewMode.Inline => App.Text("Editor.View.Inline"),
             _ => App.Text("Editor.View.Rendered"),
         };
 
-        /// <summary>Cycles markdown view modes: rendered -> split -> source -> rendered.</summary>
+        /// <summary>Cycles markdown view modes: rendered -> edit in place -> split -> source -> rendered.</summary>
         public void CycleViewMode()
         {
             if (!IsSelectedTabMarkdown)
@@ -104,7 +109,8 @@ namespace SourceGit.ViewModels
 
             ViewMode = ViewMode switch
             {
-                MarkdownViewMode.Render => MarkdownViewMode.Split,
+                MarkdownViewMode.Render => MarkdownViewMode.Inline,
+                MarkdownViewMode.Inline => MarkdownViewMode.Split,
                 MarkdownViewMode.Split => MarkdownViewMode.Source,
                 _ => MarkdownViewMode.Render,
             };
@@ -512,6 +518,7 @@ namespace SourceGit.ViewModels
             OnPropertyChanged(nameof(IsSourceMode));
             OnPropertyChanged(nameof(IsSplitMode));
             OnPropertyChanged(nameof(IsRenderMode));
+            OnPropertyChanged(nameof(IsInlineMode));
             OnPropertyChanged(nameof(IsEditorVisible));
             OnPropertyChanged(nameof(IsPreviewVisible));
             OnPropertyChanged(nameof(IsSplitVisible));

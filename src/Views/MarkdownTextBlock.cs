@@ -56,6 +56,12 @@ namespace SourceGit.Views
             InlineLength++;
         }
 
+        /// <summary>True when a link occupies the given position inside this block.</summary>
+        public bool IsLinkAt(Point position)
+        {
+            return HitTestLink(position) != null;
+        }
+
         protected override void OnPointerExited(PointerEventArgs e)
         {
             base.OnPointerExited(e);
@@ -68,6 +74,10 @@ namespace SourceGit.Views
         {
             var point = e.GetCurrentPoint(this);
             if (!point.Properties.IsLeftButtonPressed)
+                return;
+
+            // Alt+Click is reserved for editing the block source in the inline preview.
+            if ((e.KeyModifiers & KeyModifiers.Alt) != 0)
                 return;
 
             var link = HitTestLink(e.GetPosition(this));

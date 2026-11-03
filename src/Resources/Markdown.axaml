@@ -158,4 +158,46 @@
     <Setter Property="Foreground" Value="{DynamicResource Brush.Link}"/>
     <Setter Property="FontSize" Value="11"/>
   </Style>
+
+  <!-- Edit in place -->
+  <Style Selector="SelectableTextBlock.md_inline_target:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+  </Style>
+  <Style Selector="Border.md_inline_target:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+  </Style>
+
+  <Style Selector="Border.md_inline_editor">
+    <Setter Property="Background" Value="{DynamicResource Brush.Contents}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Margin" Value="0,4,0,14"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+  </Style>
+  <Style Selector="TextBox.md_inline_source">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="FontFamily" Value="{DynamicResource Fonts.Monospace}"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Padding" Value="10,8"/>
+  </Style>
+  <Style Selector="TextBlock.md_inline_title">
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+  </Style>
+  <Style Selector="TextBlock.md_inline_hint">
+    <Setter Property="FontSize" Value="10.5"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+  </Style>
+
+  <!-- Floating rendered preview used by Alt+F12 -->
+  <Style Selector="Border.md_peek">
+    <Setter Property="Background" Value="{DynamicResource Brush.Contents}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border2}"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+  </Style>
 </Styles>
