@@ -795,6 +795,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">ΣΥΝΕΧΕΙΑ</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">Προσαρμοσμένες ενέργειες</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">Καμία προσαρμοσμένη ενέργεια</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">Αυτόματη ανίχνευση</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">Απόρριψη όλων των αλλαγών</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">Άνοιγμα στον περιηγητή αρχείων</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">Αναζήτηση κλάδων/ετικετών/υπομονάδων</x:String>

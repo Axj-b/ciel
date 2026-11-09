@@ -767,6 +767,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">계속</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">사용자 지정 작업</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">사용자 지정 작업 없음</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">자동 감지됨</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">모든 변경 사항 폐기</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">파일 탐색기에서 열기</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">브랜치/태그/서브모듈 검색</x:String>

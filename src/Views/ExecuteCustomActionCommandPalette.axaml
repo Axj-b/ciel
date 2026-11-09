@@ -94,19 +94,30 @@
 
       <ListBox.ItemTemplate>
         <DataTemplate DataType="vm:ExecuteCustomActionCommandPaletteCmd">
-          <Grid ColumnDefinitions="Auto,*,Auto" Background="Transparent" Tapped="OnItemTapped">
+          <Grid ColumnDefinitions="Auto,*,Auto" Background="Transparent" Tapped="OnItemTapped" ToolTip.Tip="{Binding Path}">
             <Path Grid.Column="0"
                   Width="12" Height="12"
                   Data="{StaticResource Icons.Action}"
+                  IsVisible="{Binding !IsAutoDetected}"
+                  IsHitTestVisible="False"/>
+            <Path Grid.Column="0"
+                  Width="12" Height="12"
+                  Data="{StaticResource Icons.Terminal}"
+                  IsVisible="{Binding IsAutoDetected}"
                   IsHitTestVisible="False"/>
             <TextBlock Grid.Column="1"
                        Margin="4,0,0,0"
                        VerticalAlignment="Center"
                        IsHitTestVisible="False"
                        Text="{Binding Name, Mode=OneWay}"/>
-            <Border Grid.Column="2" Margin="4,0,0,0" Height="16" Background="Green" CornerRadius="8" VerticalAlignment="Center" IsVisible="{Binding IsGlobal}">
-              <TextBlock Text="GLOBAL" Margin="8,0" FontSize="10" Foreground="White"/>
-            </Border>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+              <Border Margin="4,0,0,0" Height="16" Background="Green" CornerRadius="8" VerticalAlignment="Center" IsVisible="{Binding IsGlobal}">
+                <TextBlock Text="GLOBAL" Margin="8,0" FontSize="10" Foreground="White"/>
+              </Border>
+              <Border Margin="4,0,0,0" Height="16" Background="#0078D4" CornerRadius="8" VerticalAlignment="Center" IsVisible="{Binding IsAutoDetected}">
+                <TextBlock Text="AUTO" Margin="8,0" FontSize="10" Foreground="White"/>
+              </Border>
+            </StackPanel>
           </Grid>
         </DataTemplate>
       </ListBox.ItemTemplate>

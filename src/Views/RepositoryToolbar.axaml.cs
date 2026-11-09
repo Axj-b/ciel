@@ -476,27 +476,53 @@ namespace SourceGit.Views
                 menu.Placement = PlacementMode.BottomEdgeAlignedLeft;
 
                 var actions = repo.GetCustomActions(Models.CustomActionScope.Repository);
-                if (actions.Count > 0)
+                foreach (var action in actions)
                 {
-                    foreach (var action in actions)
+                    var (dup, label) = action;
+                    var item = new MenuItem();
+                    item.Icon = this.CreateMenuIcon("Icons.Action");
+                    item.Header = label;
+                    item.Click += async (_, e) =>
                     {
-                        var (dup, label) = action;
+                        await repo.ExecCustomActionAsync(dup, null);
+                        e.Handled = true;
+                    };
+
+                    menu.Items.Add(item);
+                }
+
+                var scripts = Models.RepositoryScriptDetector.Discover(repo.FullPath);
+                if (scripts.Count > 0)
+                {
+                    if (menu.Items.Count > 0)
+                        menu.Items.Add(new Separator());
+
+                    var header = new MenuItem()
+                    {
+                        Header = App.Text("Repository.CustomActions.AutoDetected"),
+                        IsEnabled = false,
+                    };
+                    header.Classes.Add("section");
+                    menu.Items.Add(header);
+
+                    foreach (var script in scripts)
+                    {
                         var item = new MenuItem();
-                        item.Icon = this.CreateMenuIcon("Icons.Action");
-                        item.Header = label;
-                        item.Click += async (_, e) =>
+                        item.Icon = this.CreateMenuIcon("Icons.Terminal");
+                        item.Header = script.Name;
+                        item.Click += (_, e) =>
                         {
-                            await repo.ExecCustomActionAsync(dup, null);
+                            Models.RepositoryScriptLauncher.Run(repo.FullPath, script);
                             e.Handled = true;
                         };
 
+                        ToolTip.SetTip(item, script.RelativePath);
                         menu.Items.Add(item);
                     }
                 }
-                else
-                {
+
+                if (menu.Items.Count == 0)
                     menu.Items.Add(new MenuItem() { Header = App.Text("Repository.CustomActions.Empty") });
-                }
 
                 menu.Open(control);
             }

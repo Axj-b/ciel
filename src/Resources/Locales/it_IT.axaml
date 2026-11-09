@@ -704,6 +704,7 @@ ${pure_files:N} Come ${files:N}, ma senza cartelle</x:String>
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">CONTINUA</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">Azioni Personalizzate</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">Nessuna Azione Personalizzata</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">Rilevate automaticamente</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">Scarta tutte le modifiche</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">Apri nell'Esplora File</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">Cerca Branch/Tag/Sottomodulo</x:String>

@@ -7,13 +7,21 @@ namespace SourceGit.ViewModels
     public class ExecuteCustomActionCommandPaletteCmd
     {
         public Models.CustomAction Action { get; set; }
+        public Models.RepositoryScriptAction Script { get; set; }
         public bool IsGlobal { get; set; }
-        public string Name { get => Action.Name; }
+        public bool IsAutoDetected { get => Script != null; }
+        public string Name { get => Script?.Name ?? Action.Name; }
+        public string Path { get => Script?.RelativePath; }
 
         public ExecuteCustomActionCommandPaletteCmd(Models.CustomAction action, bool isGlobal)
         {
             Action = action;
             IsGlobal = isGlobal;
+        }
+
+        public ExecuteCustomActionCommandPaletteCmd(Models.RepositoryScriptAction script)
+        {
+            Script = script;
         }
     }
 
@@ -49,12 +57,18 @@ namespace SourceGit.ViewModels
             foreach (var (action, menu) in actions)
                 _actions.Add(new(action, menu.IsGlobal));
 
+            foreach (var script in Models.RepositoryScriptDetector.Discover(repo.FullPath))
+                _actions.Add(new(script));
+
             if (_actions.Count > 0)
             {
                 _actions.Sort((l, r) =>
                 {
                     if (l.IsGlobal != r.IsGlobal)
                         return l.IsGlobal ? -1 : 1;
+
+                    if (l.IsAutoDetected != r.IsAutoDetected)
+                        return l.IsAutoDetected ? 1 : -1;
 
                     return l.Name.CompareTo(r.Name, StringComparison.OrdinalIgnoreCase);
                 });
@@ -75,7 +89,9 @@ namespace SourceGit.ViewModels
             _visibleActions.Clear();
             Close();
 
-            if (_selected != null)
+            if (_selected?.Script != null)
+                Models.RepositoryScriptLauncher.Run(_repo.FullPath, _selected.Script);
+            else if (_selected != null)
                 await _repo.ExecCustomActionAsync(_selected.Action, null);
         }
 

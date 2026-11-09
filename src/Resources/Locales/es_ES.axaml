@@ -824,6 +824,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">CONTINUAR</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">Acciones Personalizadas</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">No hay ninguna Acción Personalizada</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">Detectadas automáticamente</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">Descartar todos los cambios</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">Abrir en el Explorador</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">Buscar Ramas/Etiquetas/Submódulos</x:String>

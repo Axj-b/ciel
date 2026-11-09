@@ -814,6 +814,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">続行</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">カスタムアクション</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">カスタムアクションがありません</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">自動検出</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">すべての変更を破棄</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">ファイルブラウザーで開く</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">ブランチ/タグ/サブモジュールを絞り込み</x:String>
