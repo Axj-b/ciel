@@ -245,9 +245,11 @@ namespace SourceGit.ViewModels
                 Args = "merge --abort",
             };
 
-            Current = new Commands.QueryCurrentBranch(repo.FullPath).GetResult();
-
+            // Read the head before querying git: the merge may be committed from outside SourceGit
+            // while this query runs, which would delete MERGE_HEAD before it can be read.
             var sourceSHA = File.ReadAllText(Path.Combine(repo.GitDir, "MERGE_HEAD")).Trim();
+
+            Current = new Commands.QueryCurrentBranch(repo.FullPath).GetResult();
             Source = new Commands.QuerySingleCommit(repo.FullPath, sourceSHA).GetResult() ?? new Models.Commit() { SHA = sourceSHA };
             SourceName = Source.GetFriendlyName();
         }

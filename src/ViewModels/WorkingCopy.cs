@@ -797,16 +797,29 @@ namespace SourceGit.ViewModels
         {
             var oldType = _inProgressContext != null ? _inProgressContext.GetType() : null;
 
-            if (File.Exists(Path.Combine(_repo.GitDir, "CHERRY_PICK_HEAD")))
-                InProgressContext = new CherryPickInProgress(_repo);
-            else if (Directory.Exists(Path.Combine(_repo.GitDir, "rebase-merge")) || Directory.Exists(Path.Combine(_repo.GitDir, "rebase-apply")))
-                InProgressContext = new RebaseInProgress(_repo);
-            else if (File.Exists(Path.Combine(_repo.GitDir, "REVERT_HEAD")))
-                InProgressContext = new RevertInProgress(_repo);
-            else if (File.Exists(Path.Combine(_repo.GitDir, "MERGE_HEAD")))
-                InProgressContext = new MergeInProgress(_repo);
-            else
-                InProgressContext = null;
+            InProgressContext context = null;
+            try
+            {
+                if (File.Exists(Path.Combine(_repo.GitDir, "CHERRY_PICK_HEAD")))
+                    context = new CherryPickInProgress(_repo);
+                else if (Directory.Exists(Path.Combine(_repo.GitDir, "rebase-merge")) || Directory.Exists(Path.Combine(_repo.GitDir, "rebase-apply")))
+                    context = new RebaseInProgress(_repo);
+                else if (File.Exists(Path.Combine(_repo.GitDir, "REVERT_HEAD")))
+                    context = new RevertInProgress(_repo);
+                else if (File.Exists(Path.Combine(_repo.GitDir, "MERGE_HEAD")))
+                    context = new MergeInProgress(_repo);
+            }
+            catch (IOException)
+            {
+                // The operation finished (or was aborted) between the existence check and reading
+                // its state files. Treat it as no longer in progress instead of crashing the app.
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Same as above: the state files are gone or no longer readable.
+            }
+
+            InProgressContext = context;
 
             if (_inProgressContext != null && _inProgressContext.GetType() == oldType && !string.IsNullOrEmpty(_commitMessage))
                 return;
@@ -831,10 +844,24 @@ namespace SourceGit.ViewModels
 
         private bool LoadCommitMessageFromFile(string file)
         {
-            if (!File.Exists(file))
-                return false;
+            string msg;
+            try
+            {
+                if (!File.Exists(file))
+                    return false;
 
-            var msg = File.ReadAllText(file).Trim();
+                msg = File.ReadAllText(file).Trim();
+            }
+            catch (IOException)
+            {
+                // The file can be removed by a finishing merge/rebase between the existence check and the read.
+                return false;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
+
             if (string.IsNullOrEmpty(msg))
                 return false;
 
