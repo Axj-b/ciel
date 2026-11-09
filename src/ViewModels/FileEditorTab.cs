@@ -38,6 +38,9 @@ namespace SourceGit.ViewModels
 
         public bool IsReadOnly => File.IsReadOnly;
 
+        /// <summary>Markdown files open in the rendered preview by default and can switch view modes.</summary>
+        public bool IsMarkdown => MarkdownHelper.IsMarkdownFile(Path);
+
         /// <summary>Caret offset is restored when the user switches back to this tab.</summary>
         public int CaretOffset { get; set; } = 0;
 

@@ -33,6 +33,13 @@ The project uses the following third-party libraries or assets
 - **License**: MIT License
 - **License Link**: https://github.com/danipen/TextMateSharp/blob/master/LICENSE.md
 
+### Markdig
+
+- **Source**: https://github.com/xoofx/markdig
+- **Version**: 1.5.1
+- **License**: BSD 2-Clause License
+- **License Link**: https://github.com/xoofx/markdig/blob/master/license.txt
+
 ### OpenAI .NET SDK
 
 - **Source**: https://github.com/openai/openai-dotnet

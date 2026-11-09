@@ -1,0 +1,203 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="UserControl.markdown_view">
+    <Setter Property="Background" Value="{DynamicResource Brush.Contents}"/>
+  </Style>
+
+  <Style Selector="SelectableTextBlock.md_p">
+    <Setter Property="Margin" Value="0,0,0,8"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+
+  <Style Selector="SelectableTextBlock.md_h1">
+    <Setter Property="Margin" Value="0,16,0,8"/>
+    <Setter Property="FontSize" Value="26"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_h2">
+    <Setter Property="Margin" Value="0,14,0,6"/>
+    <Setter Property="FontSize" Value="21"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_h3">
+    <Setter Property="Margin" Value="0,12,0,6"/>
+    <Setter Property="FontSize" Value="17"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_h4">
+    <Setter Property="Margin" Value="0,10,0,4"/>
+    <Setter Property="FontSize" Value="15"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_h5">
+    <Setter Property="Margin" Value="0,8,0,4"/>
+    <Setter Property="FontSize" Value="13.5"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_h6">
+    <Setter Property="Margin" Value="0,8,0,4"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+  </Style>
+
+  <Style Selector="Run.md_link">
+    <Setter Property="Foreground" Value="{DynamicResource Brush.Link}"/>
+    <Setter Property="TextDecorations" Value="Underline"/>
+  </Style>
+  <Style Selector="Run.md_image_alt">
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+    <Setter Property="FontStyle" Value="Italic"/>
+  </Style>
+  <Style Selector="Run.md_inline_code">
+    <Setter Property="FontFamily" Value="{DynamicResource Fonts.Monospace}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.InlineCodeFG}"/>
+    <Setter Property="Background" Value="{DynamicResource Brush.InlineCode}"/>
+  </Style>
+  <Style Selector="Run.md_marked">
+    <Setter Property="Background" Value="{DynamicResource Brush.InlineCode}"/>
+  </Style>
+  <Style Selector="Run.md_raw_html">
+    <Setter Property="FontFamily" Value="{DynamicResource Fonts.Monospace}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+  </Style>
+  <Style Selector="Run.md_footnote_ref">
+    <Setter Property="Foreground" Value="{DynamicResource Brush.Link}"/>
+    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="BaselineAlignment" Value="Superscript"/>
+  </Style>
+
+  <Style Selector="SelectableTextBlock.md_raw_html">
+    <Setter Property="Margin" Value="0,0,0,8"/>
+    <Setter Property="FontFamily" Value="{DynamicResource Fonts.Monospace}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_notice">
+    <Setter Property="Foreground" Value="DarkOrange"/>
+    <Setter Property="FontSize" Value="13"/>
+  </Style>
+
+  <Style Selector="Border.md_code_block">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border0}"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Margin" Value="0,6,0,10"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+  </Style>
+  <Style Selector="TextBlock.md_code_lang">
+    <Setter Property="FontSize" Value="10.5"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+    <Setter Property="FontFamily" Value="{DynamicResource Fonts.Monospace}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_code">
+    <Setter Property="FontFamily" Value="{DynamicResource Fonts.Monospace}"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+
+  <Style Selector="Border.md_quote">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+    <Setter Property="BorderThickness" Value="3,0,0,0"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border2}"/>
+    <Setter Property="Padding" Value="10,6,10,0"/>
+    <Setter Property="Margin" Value="0,2,0,10"/>
+  </Style>
+
+  <Style Selector="Border.md_hr">
+    <Setter Property="Height" Value="1"/>
+    <Setter Property="Background" Value="{DynamicResource Brush.Border1}"/>
+    <Setter Property="Margin" Value="0,12,0,12"/>
+  </Style>
+
+  <Style Selector="TextBlock.md_list_marker">
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+    <Setter Property="MinWidth" Value="16"/>
+    <Setter Property="TextAlignment" Value="Right"/>
+  </Style>
+  <Style Selector="Border.md_task_box">
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border1}"/>
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+
+  <Style Selector="Border.md_table">
+    <Setter Property="BorderThickness" Value="1,1,0,0"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border0}"/>
+    <Setter Property="Margin" Value="0,4,0,12"/>
+  </Style>
+  <Style Selector="Border.md_table_cell">
+    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border0}"/>
+    <Setter Property="Padding" Value="8,4"/>
+  </Style>
+  <Style Selector="Border.md_table_header">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_table_text">
+    <Setter Property="Margin" Value="0"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+  <Style Selector="SelectableTextBlock.md_table_header">
+    <Setter Property="FontWeight" Value="Bold"/>
+  </Style>
+
+  <Style Selector="TextBlock.md_footnote_title">
+    <Setter Property="Margin" Value="0,0,0,6"/>
+    <Setter Property="FontSize" Value="15"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG1}"/>
+  </Style>
+  <Style Selector="TextBlock.md_footnote_label">
+    <Setter Property="FontFamily" Value="{DynamicResource Fonts.Monospace}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.Link}"/>
+    <Setter Property="FontSize" Value="11"/>
+  </Style>
+
+  <!-- Edit in place -->
+  <Style Selector="SelectableTextBlock.md_inline_target:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+  </Style>
+  <Style Selector="Border.md_inline_target:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+  </Style>
+
+  <Style Selector="Border.md_inline_editor">
+    <Setter Property="Background" Value="{DynamicResource Brush.Contents}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Margin" Value="0,4,0,14"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+  </Style>
+  <Style Selector="TextBox.md_inline_source">
+    <Setter Property="Background" Value="{DynamicResource Brush.SubPanel}"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="FontFamily" Value="{DynamicResource Fonts.Monospace}"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Padding" Value="10,8"/>
+  </Style>
+  <Style Selector="TextBlock.md_inline_title">
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}"/>
+  </Style>
+  <Style Selector="TextBlock.md_inline_hint">
+    <Setter Property="FontSize" Value="10.5"/>
+    <Setter Property="Foreground" Value="{DynamicResource Brush.FG2}"/>
+  </Style>
+
+  <!-- Floating rendered preview used by Alt+F12 -->
+  <Style Selector="Border.md_peek">
+    <Setter Property="Background" Value="{DynamicResource Brush.Contents}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border2}"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+  </Style>
+</Styles>

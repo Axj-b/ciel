@@ -66,6 +66,7 @@
     <PackageReference Include="BitMiracle.LibTiff.NET" Version="2.4.660" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Iciclecreek.Avalonia.Terminal" Version="1.0.12" />
+    <PackageReference Include="Markdig" Version="1.5.1" />
     <!-- Porta.Pty 1.x marshals Windows job-object structs through Vanara's reflection-based
          marshaller, which fails under NativeAOT ("Unable to convert object to its binary
          format"). 2.x uses Microsoft's ConPTY package instead and is AOT-safe; the API used

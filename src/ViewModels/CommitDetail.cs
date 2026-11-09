@@ -709,7 +709,7 @@ namespace SourceGit.ViewModels
             }
             else
             {
-                ViewRevisionFileContent = new Models.RevisionTextFile() { FileName = file.Path, Content = content };
+                ViewRevisionFileContent = new Models.RevisionTextFile() { Repository = _repo.FullPath, FileName = file.Path, Content = content };
             }
         }
 

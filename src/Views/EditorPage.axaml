@@ -116,7 +116,7 @@
               BorderThickness="0,0,0,1"
               BorderBrush="{DynamicResource Brush.Border0}"
               IsVisible="{Binding HasSelectedTab}">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" Height="30" Margin="4,0">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" Height="30" Margin="4,0">
           <Button Grid.Column="0"
                   Classes="icon_button"
                   Width="26" Height="26"
@@ -144,8 +144,23 @@
                         ToolTip.Tip="{DynamicResource Text.Editor.WordWrap}">
             <Path Width="14" Height="14" Data="{StaticResource Icons.WordWrap}"/>
           </ToggleButton>
+          <Button Grid.Column="3"
+                  Classes="icon_button"
+                  Width="26" Height="26"
+                  Margin="0,2"
+                  Padding="0"
+                  Click="OnCycleViewMode"
+                  IsVisible="{Binding IsSelectedTabMarkdown}"
+                  ToolTip.Tip="{Binding ViewModeToolTip}">
+            <Panel Width="14" Height="14">
+              <Path Width="14" Height="14" Data="{StaticResource Icons.Code}" IsVisible="{Binding IsSourceMode}"/>
+              <Path Width="14" Height="14" Data="{StaticResource Icons.SplitView}" IsVisible="{Binding IsSplitMode}"/>
+              <Path Width="14" Height="14" Data="{StaticResource Icons.Edit}" IsVisible="{Binding IsInlineMode}"/>
+              <Path Width="14" Height="14" Data="{StaticResource Icons.Eye}" IsVisible="{Binding IsRenderMode}"/>
+            </Panel>
+          </Button>
 
-          <TextBlock Grid.Column="3"
+          <TextBlock Grid.Column="4"
                      Margin="8,0"
                      VerticalAlignment="Center"
                      Foreground="{DynamicResource Brush.FG2}"
@@ -156,12 +171,32 @@
       </Border>
 
       <!-- Content -->
-      <Panel Grid.Row="2" Background="{DynamicResource Brush.Window}">
-        <v:CodeEditor x:Name="Editor"
-                      IsVisible="{Binding HasSelectedTab}"
-                      FontFamily="{DynamicResource Fonts.Monospace}"
-                      FontSize="{Binding Source={x:Static vm:Preferences.Instance}, Path=EditorFontSize}"
-                      TabWidth="{Binding Source={x:Static vm:Preferences.Instance}, Path=EditorTabWidth}"/>
+      <Panel x:Name="ContentArea" Grid.Row="2" Background="{DynamicResource Brush.Window}">
+        <Grid x:Name="EditorPanel" IsVisible="{Binding HasSelectedTab}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <v:CodeEditor Grid.Column="0"
+                        x:Name="Editor"
+                        FontFamily="{DynamicResource Fonts.Monospace}"
+                        FontSize="{Binding Source={x:Static vm:Preferences.Instance}, Path=EditorFontSize}"
+                        TabWidth="{Binding Source={x:Static vm:Preferences.Instance}, Path=EditorTabWidth}"/>
+
+          <GridSplitter Grid.Column="1"
+                        x:Name="EditorSplitter"
+                        Width="4"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"
+                        Focusable="False"/>
+
+          <v:MarkdownView Grid.Column="2"
+                          x:Name="Preview"
+                          IsVisible="False"/>
+        </Grid>
 
         <StackPanel HorizontalAlignment="Center"
                     VerticalAlignment="Center"
@@ -181,6 +216,42 @@
                      FontSize="11"
                      Foreground="{DynamicResource Brush.FG2}"/>
         </StackPanel>
+
+        <!-- Rendered peek for the markdown block under the caret (Alt+F12) -->
+        <Canvas x:Name="PeekLayer" IsVisible="False">
+          <Border x:Name="PeekPanel" Classes="md_peek" Width="520">
+            <Grid RowDefinitions="Auto,Auto">
+              <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="10,5,6,4">
+                <Path Width="12" Height="12"
+                      VerticalAlignment="Center"
+                      Data="{StaticResource Icons.Eye}"
+                      Fill="{DynamicResource Brush.FG2}"/>
+                <TextBlock Grid.Column="1"
+                           Margin="6,0,0,0"
+                           VerticalAlignment="Center"
+                           Text="{DynamicResource Text.Markdown.Peek.Title}"
+                           FontSize="11"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource Brush.FG2}"/>
+                <Button Grid.Column="2"
+                        Classes="icon_button"
+                        Width="20" Height="20"
+                        Padding="0"
+                        Click="OnClosePeek"
+                        ToolTip.Tip="{DynamicResource Text.Close}">
+                  <Path Width="8" Height="8" Data="{StaticResource Icons.Close}"/>
+                </Button>
+              </Grid>
+              <ScrollViewer Grid.Row="1"
+                            x:Name="PeekScroll"
+                            MaxHeight="260"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="PeekContent" Margin="12,0,12,10"/>
+              </ScrollViewer>
+            </Grid>
+          </Border>
+        </Canvas>
       </Panel>
 
       <!-- Status bar -->
