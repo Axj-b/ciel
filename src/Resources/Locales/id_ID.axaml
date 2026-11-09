@@ -797,6 +797,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">LANJUTKAN</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">Aksi Kustom</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">Tidak Ada Aksi Kustom</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">Terdeteksi otomatis</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">Buang semua perubahan</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">Buka di File Browser</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">Cari Branch/Tag/Submodule</x:String>

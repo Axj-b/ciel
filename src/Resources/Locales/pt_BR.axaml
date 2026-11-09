@@ -506,6 +506,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">CONTINUAR</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">Ações customizada</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">Nenhuma ação customizada</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">Detectadas automaticamente</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">Descartar todas as alterações</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">Abrir no Navegador de Arquivos</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">Pesquisar Branches/Tags/Submódulos</x:String>

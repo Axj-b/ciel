@@ -509,6 +509,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">ПРОДОВЖИТИ</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">Спеціальні дії</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">Немає спеціальних дій</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">Виявлено автоматично</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">Скасувати всі зміни</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">Відкрити у файловому менеджері</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">Пошук гілок/тегів/підмодулів</x:String>

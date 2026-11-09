@@ -505,6 +505,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">தொடர்க</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">தனிப்பயன் செயல்கள்</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">தனிப்பயன் செயல்கள் இல்லை</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">தானாகக் கண்டறியப்பட்டவை</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">எல்லா மாற்றங்களையும் நிராகரி</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">கோப்பு உலாவியில் திற</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">கிளைகள்/குறிச்சொற்கள்/துணைத் தொகுதிகளைத் தேடு</x:String>

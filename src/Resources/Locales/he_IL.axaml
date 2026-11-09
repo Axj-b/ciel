@@ -759,6 +759,7 @@
   <x:String x:Key="Text.Repository.Continue" xml:space="preserve">המשך</x:String>
   <x:String x:Key="Text.Repository.CustomActions" xml:space="preserve">פעולות מותאמות אישית</x:String>
   <x:String x:Key="Text.Repository.CustomActions.Empty" xml:space="preserve">אין פעולות מותאמות אישית</x:String>
+  <x:String x:Key="Text.Repository.CustomActions.AutoDetected" xml:space="preserve">זוהו אוטומטית</x:String>
   <x:String x:Key="Text.Repository.DiscardAll" xml:space="preserve">השלך כל השינויים</x:String>
   <x:String x:Key="Text.Repository.Explore" xml:space="preserve">פתח בסייר הקבצים</x:String>
   <x:String x:Key="Text.Repository.Filter" xml:space="preserve">חיפוש Branches/Tags/Submodules</x:String>
