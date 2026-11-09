@@ -29,9 +29,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$isWindows = $env:OS -eq 'Windows_NT'
+$onWindows = $env:OS -eq 'Windows_NT'
 if ([string]::IsNullOrWhiteSpace($Destination)) {
-    $Destination = if ($isWindows) {
+    $Destination = if ($onWindows) {
         Join-Path $env:LOCALAPPDATA 'Programs\ciel'
     } else {
         Join-Path $HOME '.local/share/ciel'
