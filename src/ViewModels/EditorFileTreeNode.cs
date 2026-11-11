@@ -17,6 +17,9 @@ namespace SourceGit.ViewModels
 
         public bool IsFolder { get; set; } = false;
 
+        /// <summary>True when the file (or every file below a folder) is ignored by Git.</summary>
+        public bool IsIgnored { get; set; } = false;
+
         public int Depth { get; set; } = 0;
 
         public bool IsExpanded

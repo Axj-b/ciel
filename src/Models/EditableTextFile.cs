@@ -108,6 +108,13 @@ namespace SourceGit.Models
             return file;
         }
 
+        /// <summary>Points this instance at another working tree path after the file was renamed.</summary>
+        public void UpdatePath(string repository, string relativePath)
+        {
+            RelativePath = relativePath;
+            FullPath = Path.Combine(repository, relativePath.Replace('/', Path.DirectorySeparatorChar));
+        }
+
         /// <summary>True when the file was modified by something else since it was loaded or saved.</summary>
         public bool HasChangedOnDisk()
         {

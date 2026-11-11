@@ -13,6 +13,9 @@ namespace SourceGit.Converters
         public static readonly FuncValueConverter<bool, double> IsMergedToOpacity =
             new(x => x ? 1 : 0.65);
 
+        public static readonly FuncValueConverter<bool, double> IsIgnoredToOpacity =
+            new(x => x ? 0.55 : 1);
+
         public static readonly FuncValueConverter<bool, IBrush> IsWarningToBrush =
             new(x => x ? Brushes.DarkGoldenrod : Application.Current?.FindResource("Brush.FG1") as IBrush);
     }

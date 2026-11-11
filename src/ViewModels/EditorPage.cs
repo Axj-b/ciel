@@ -147,7 +147,30 @@ namespace SourceGit.ViewModels
             set => SetProperty(ref _isWordWrapEnabled, value);
         }
 
+        /// <summary>
+        ///     Whether files matched by <c>.gitignore</c> are listed as well. Remembered per repository;
+        ///     ignored trees can be large, so this is off by default.
+        /// </summary>
+        public bool ShowIgnoredFiles
+        {
+            get => _repo.UIStates.ShowIgnoredFilesInEditor;
+            set
+            {
+                if (value == _repo.UIStates.ShowIgnoredFilesInEditor)
+                    return;
+
+                _repo.UIStates.ShowIgnoredFilesInEditor = value;
+                OnPropertyChanged();
+                _ = RefreshFilesAsync();
+            }
+        }
+
         public event Action<string> BinaryFileRequested;
+
+        public void Notify(string message, bool isError = false)
+        {
+            _repo.SendNotification(message, isError);
+        }
 
         public async Task EnsureFilesLoadedAsync()
         {
@@ -159,9 +182,20 @@ namespace SourceGit.ViewModels
 
         public async Task RefreshFilesAsync()
         {
-            if (_loadingTask == null)
-                _loadingTask = LoadFilesAsync();
+            var running = _loadingTask;
+            if (running != null)
+            {
+                try
+                {
+                    await running.ConfigureAwait(true);
+                }
+                catch
+                {
+                    // A failed load must not block the next one.
+                }
+            }
 
+            _loadingTask = LoadFilesAsync();
             await _loadingTask.ConfigureAwait(true);
         }
 
@@ -222,6 +256,165 @@ namespace SourceGit.ViewModels
                 SelectedRow = row;
 
             await OpenFileAsync(path).ConfigureAwait(true);
+        }
+
+        /// <summary>Opens the name popup to create a file or folder below the given row (or at the repo root).</summary>
+        public void BeginCreateItem(EditorFileTreeNode node, bool isFolder)
+        {
+            if (!_repo.CanCreatePopup())
+                return;
+
+            _repo.ShowPopup(new EditorItemName(this, node,
+                isFolder ? EditorItemNameMode.NewFolder : EditorItemNameMode.NewFile));
+        }
+
+        public void BeginRenameItem(EditorFileTreeNode node)
+        {
+            if (node == null || !_repo.CanCreatePopup())
+                return;
+
+            _repo.ShowPopup(new EditorItemName(this, node, EditorItemNameMode.Rename));
+        }
+
+        /// <summary>
+        ///     Creates a file or folder on disk. Returns an error message on failure, or null on success.
+        ///     Called by the name popup once the user confirmed.
+        /// </summary>
+        public async Task<string> CreateItemAsync(string folder, string name, bool isFolder)
+        {
+            var relative = string.IsNullOrEmpty(folder) ? name : folder + "/" + name;
+            var full = Native.OS.GetAbsPath(_repo.FullPath, relative);
+
+            if (File.Exists(full) || Directory.Exists(full))
+                return App.Text("Editor.NameExists", relative);
+
+            try
+            {
+                if (isFolder)
+                {
+                    Directory.CreateDirectory(full);
+                    _expandedFolders.Add(relative);
+
+                    // Git does not track empty folders, so remember it for this page. Otherwise the
+                    // folder would be created on disk but never show up in the list.
+                    _emptyFolders.Add(relative);
+                }
+                else
+                {
+                    var parent = Path.GetDirectoryName(full);
+                    if (!string.IsNullOrEmpty(parent))
+                        Directory.CreateDirectory(parent);
+
+                    File.WriteAllText(full, string.Empty);
+                }
+            }
+            catch (Exception e)
+            {
+                return App.Text("Editor.CreateFailed", relative, e.Message);
+            }
+
+            await RefreshFilesAsync().ConfigureAwait(true);
+            if (isFolder)
+            {
+                ExpandAncestors(relative);
+                RebuildTree();
+                SelectRow(relative, true);
+            }
+            else
+            {
+                await OpenFileAndRevealAsync(relative).ConfigureAwait(true);
+            }
+
+            return null;
+        }
+
+        /// <summary>Renames a file or folder on disk. Returns an error message on failure, or null on success.</summary>
+        public async Task<string> RenameItemAsync(EditorFileTreeNode node, string newName)
+        {
+            if (node == null)
+                return null;
+
+            var oldRelative = node.Path;
+            var parent = GetParentFolder(oldRelative);
+            var newRelative = string.IsNullOrEmpty(parent) ? newName : parent + "/" + newName;
+            if (oldRelative.Equals(newRelative, StringComparison.Ordinal))
+                return null;
+
+            var affected = Tabs.Where(t => IsPathUnder(t.Path, oldRelative)).ToList();
+            if (affected.Any(t => t.IsDirty))
+                return App.Text("Editor.DirtyTabs", oldRelative);
+
+            var oldFull = Native.OS.GetAbsPath(_repo.FullPath, oldRelative);
+            var newFull = Native.OS.GetAbsPath(_repo.FullPath, newRelative);
+
+            try
+            {
+                MovePath(oldFull, newFull, node.IsFolder);
+            }
+            catch (Exception e)
+            {
+                return App.Text("Editor.RenameFailed", oldRelative, e.Message);
+            }
+
+            foreach (var tab in affected)
+                tab.UpdatePath(_repo.FullPath, newRelative + tab.Path[oldRelative.Length..]);
+
+            if (node.IsFolder)
+            {
+                var expanded = _expandedFolders.Where(x => IsPathUnder(x, oldRelative)).ToList();
+                foreach (var path in expanded)
+                {
+                    _expandedFolders.Remove(path);
+                    _expandedFolders.Add(newRelative + path[oldRelative.Length..]);
+                }
+
+                foreach (var path in _emptyFolders.Where(x => IsPathUnder(x, oldRelative)).ToList())
+                {
+                    _emptyFolders.Remove(path);
+                    _emptyFolders.Add(newRelative + path[oldRelative.Length..]);
+                }
+            }
+
+            await RefreshFilesAsync().ConfigureAwait(true);
+            SelectRow(newRelative, node.IsFolder);
+            return null;
+        }
+
+        /// <summary>Deletes a file or folder after confirmation. Open tabs below the item are closed.</summary>
+        public async Task DeleteItemAsync(EditorFileTreeNode node)
+        {
+            if (node == null)
+                return;
+
+            var affected = Tabs.Where(t => IsPathUnder(t.Path, node.Path)).ToList();
+            if (affected.Any(t => t.IsDirty))
+            {
+                _repo.SendNotification(App.Text("Editor.DirtyTabs", node.Path), true);
+                return;
+            }
+
+            if (!await App.AskConfirmAsync(App.Text("Editor.DeleteConfirm", node.Path)).ConfigureAwait(true))
+                return;
+
+            var full = Native.OS.GetAbsPath(_repo.FullPath, node.Path);
+            try
+            {
+                if (node.IsFolder)
+                    Directory.Delete(full, true);
+                else
+                    File.Delete(full);
+            }
+            catch (Exception e)
+            {
+                _repo.SendNotification(App.Text("Editor.DeleteFailed", node.Path, e.Message), true);
+                return;
+            }
+
+            foreach (var tab in affected)
+                RemoveTab(tab);
+
+            _emptyFolders.RemoveWhere(x => IsPathUnder(x, node.Path));
+            await RefreshFilesAsync().ConfigureAwait(true);
         }
 
         public void ToggleNode(EditorFileTreeNode node)
@@ -330,17 +523,27 @@ namespace SourceGit.ViewModels
             IsRefreshingFiles = true;
             try
             {
-                var files = await new Commands.QueryWorkingTreeFiles(_repo.FullPath).GetResultAsync().ConfigureAwait(false);
+                var includeIgnored = _repo.UIStates.ShowIgnoredFilesInEditor;
+                var (files, ignored) = await new Commands.QueryWorkingTreeFiles(_repo.FullPath, includeIgnored)
+                    .GetResultAsync()
+                    .ConfigureAwait(false);
                 if (_closed)
                     return;
 
                 // File.Exists on every entry can be slow for large repositories, so keep it off
-                // the UI thread together with sorting.
+                // the UI thread together with sorting. Ignored entries come straight from Git's
+                // untracked listing, so they do not need the extra probe (ignored trees can be huge).
                 var existing = await Task.Run(() =>
                 {
                     var result = new List<string>(files.Count);
                     foreach (var path in files)
                     {
+                        if (ignored.Contains(path))
+                        {
+                            result.Add(path);
+                            continue;
+                        }
+
                         var full = Path.Combine(_repo.FullPath, path.Replace('/', Path.DirectorySeparatorChar));
                         if (File.Exists(full))
                             result.Add(path);
@@ -354,6 +557,8 @@ namespace SourceGit.ViewModels
                     return;
 
                 _allFiles = existing;
+                _ignoredFiles = ignored;
+                _emptyFolders.RemoveWhere(x => !Directory.Exists(Native.OS.GetAbsPath(_repo.FullPath, x)));
                 _loaded = true;
 
                 RefreshVisibleFiles();
@@ -362,7 +567,6 @@ namespace SourceGit.ViewModels
             finally
             {
                 IsRefreshingFiles = false;
-                _loadingTask = null;
             }
         }
 
@@ -411,6 +615,7 @@ namespace SourceGit.ViewModels
                             Name = name,
                             Path = file,
                             IsFolder = false,
+                            IsIgnored = _ignoredFiles.Contains(file),
                         });
                     }
                     else
@@ -435,8 +640,43 @@ namespace SourceGit.ViewModels
                 }
             }
 
+            if (string.IsNullOrEmpty(_filter))
+                AddEmptyFolders(folders);
+
             SortChildren(_tree);
+            MarkIgnoredChildren(_tree);
             RebuildRows();
+        }
+
+        /// <summary>Adds folders the user created during this session that do not contain any file yet.</summary>
+        private void AddEmptyFolders(Dictionary<string, EditorFileTreeNode> folders)
+        {
+            foreach (var path in _emptyFolders)
+            {
+                var parts = path.Split('/');
+                var parent = _tree;
+                var prefix = string.Empty;
+
+                foreach (var name in parts)
+                {
+                    var full = prefix.Length == 0 ? name : prefix + "/" + name;
+                    if (!folders.TryGetValue(full, out var folder))
+                    {
+                        folder = new EditorFileTreeNode
+                        {
+                            Name = name,
+                            Path = full,
+                            IsFolder = true,
+                            IsExpanded = _expandedFolders.Contains(full),
+                        };
+                        folders.Add(full, folder);
+                        parent.Children.Add(folder);
+                    }
+
+                    parent = folder;
+                    prefix = full;
+                }
+            }
         }
 
         private void RebuildRows()
@@ -497,6 +737,68 @@ namespace SourceGit.ViewModels
             }
         }
 
+        /// <summary>A folder is treated as ignored when every file below it is ignored.</summary>
+        private static bool MarkIgnoredChildren(EditorFileTreeNode node)
+        {
+            if (!node.IsFolder)
+                return node.IsIgnored;
+
+            var all = node.Children.Count > 0;
+            foreach (var child in node.Children)
+                all &= MarkIgnoredChildren(child);
+
+            node.IsIgnored = all;
+            return all;
+        }
+
+        private void SelectRow(string path, bool isFolder)
+        {
+            SelectedRow = Rows.FirstOrDefault(x =>
+                x.IsFolder == isFolder && x.Path.Equals(path, StringComparison.Ordinal));
+        }
+
+        private static string GetParentFolder(string path)
+        {
+            var index = path.LastIndexOf('/');
+            return index < 0 ? string.Empty : path[..index];
+        }
+
+        private static bool IsPathUnder(string path, string root)
+        {
+            return path.Equals(root, StringComparison.Ordinal) ||
+                   path.StartsWith(root + "/", StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        ///     Moves a file or folder. A pure case change goes through a temporary name because
+        ///     case-insensitive file systems treat the source and target as the same entry.
+        /// </summary>
+        private static void MovePath(string oldFullPath, string newFullPath, bool isFolder)
+        {
+            if (oldFullPath.Equals(newFullPath, StringComparison.OrdinalIgnoreCase) &&
+                !oldFullPath.Equals(newFullPath, StringComparison.Ordinal))
+            {
+                var temp = oldFullPath + ".sourcegit-rename-" + Guid.NewGuid().ToString("N");
+                if (isFolder)
+                {
+                    Directory.Move(oldFullPath, temp);
+                    Directory.Move(temp, newFullPath);
+                }
+                else
+                {
+                    File.Move(oldFullPath, temp);
+                    File.Move(temp, newFullPath);
+                }
+
+                return;
+            }
+
+            if (isFolder)
+                Directory.Move(oldFullPath, newFullPath);
+            else
+                File.Move(oldFullPath, newFullPath);
+        }
+
         private void RemoveTab(FileEditorTab tab)
         {
             var index = Tabs.IndexOf(tab);
@@ -528,8 +830,10 @@ namespace SourceGit.ViewModels
         private readonly Repository _repo;
         private EditorFileTreeNode _tree = new() { IsFolder = true, IsExpanded = true };
         private readonly HashSet<string> _expandedFolders = new(StringComparer.Ordinal);
+        private readonly HashSet<string> _emptyFolders = new(StringComparer.Ordinal);
         private List<string> _allFiles = [];
         private List<string> _visibleFiles = [];
+        private HashSet<string> _ignoredFiles = new(StringComparer.Ordinal);
         private FileEditorTab _selectedTab = null;
         private EditorFileTreeNode _selectedRow = null;
         private string _filter = string.Empty;

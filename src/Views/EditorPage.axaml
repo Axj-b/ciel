@@ -11,7 +11,7 @@
   <Grid ColumnDefinitions="270,4,*">
     <!-- Working tree -->
     <Grid Grid.Column="0" RowDefinitions="Auto,*" Background="{DynamicResource Brush.SubPanel}">
-      <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="8,6,6,6">
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="8,6,6,6">
         <TextBox Grid.Column="0"
                  Height="24"
                  BorderThickness="1"
@@ -28,7 +28,14 @@
           </TextBox.InnerLeftContent>
         </TextBox>
 
-        <Button Grid.Column="1"
+        <ToggleButton Grid.Column="1"
+                      Classes="toggle_untracked"
+                      Width="26" Height="24"
+                      Margin="4,0,0,0"
+                      IsChecked="{Binding ShowIgnoredFiles, Mode=TwoWay}"
+                      ToolTip.Tip="{DynamicResource Text.Editor.ShowIgnored}"/>
+
+        <Button Grid.Column="2"
                 Classes="icon_button"
                 Width="26" Height="24"
                 Margin="4,0,0,0"

@@ -93,6 +93,12 @@ namespace SourceGit.Models
             set;
         } = true;
 
+        public bool ShowIgnoredFilesInEditor
+        {
+            get;
+            set;
+        } = false;
+
         public bool EnableForceOnFetch
         {
             get;

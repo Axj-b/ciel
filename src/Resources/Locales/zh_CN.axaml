@@ -1104,19 +1104,38 @@
   <x:String x:Key="Text.Yes" xml:space="preserve">好的</x:String>
   <x:String x:Key="Text.Editor" xml:space="preserve">Editor</x:String>
   <x:String x:Key="Text.Editor.DiscardChanges" xml:space="preserve">{0} has unsaved changes. Discard them and reload the file from disk?</x:String>
+  <x:String x:Key="Text.Editor.CreateFailed" xml:space="preserve">Failed to create '{0}': {1}</x:String>
+  <x:String x:Key="Text.Editor.Delete" xml:space="preserve">Delete</x:String>
+  <x:String x:Key="Text.Editor.DeleteConfirm" xml:space="preserve">Delete '{0}'? This cannot be undone.</x:String>
+  <x:String x:Key="Text.Editor.DeleteFailed" xml:space="preserve">Failed to delete '{0}': {1}</x:String>
+  <x:String x:Key="Text.Editor.DirtyTabs" xml:space="preserve">'{0}' contains unsaved changes. Save or close the affected tabs first.</x:String>
   <x:String x:Key="Text.Editor.Empty" xml:space="preserve">No file opened</x:String>
   <x:String x:Key="Text.Editor.Empty.Hint" xml:space="preserve">Double-click a file in the tree to start editing it.</x:String>
   <x:String x:Key="Text.Editor.FileNotFound" xml:space="preserve">{0} does not exist in the working tree anymore.</x:String>
   <x:String x:Key="Text.Editor.FileTooLarge" xml:space="preserve">{0} is too large to open in the editor (limit: 8 MB).</x:String>
   <x:String x:Key="Text.Editor.Filter" xml:space="preserve">Filter files...</x:String>
   <x:String x:Key="Text.Editor.LoadFailed" xml:space="preserve">Failed to open {0}: {1}</x:String>
+  <x:String x:Key="Text.Editor.Location" xml:space="preserve">Location:</x:String>
+  <x:String x:Key="Text.Editor.NameExists" xml:space="preserve">'{0}' already exists.</x:String>
+  <x:String x:Key="Text.Editor.NameInvalid" xml:space="preserve">The name contains characters that are not allowed.</x:String>
+  <x:String x:Key="Text.Editor.NamePlaceholder" xml:space="preserve">Enter a name.</x:String>
+  <x:String x:Key="Text.Editor.NameRequired" xml:space="preserve">A name is required.</x:String>
+  <x:String x:Key="Text.Editor.NewFile" xml:space="preserve">New File...</x:String>
+  <x:String x:Key="Text.Editor.NewFile.Title" xml:space="preserve">New File</x:String>
+  <x:String x:Key="Text.Editor.NewFolder" xml:space="preserve">New Folder...</x:String>
+  <x:String x:Key="Text.Editor.NewFolder.Title" xml:space="preserve">New Folder</x:String>
+  <x:String x:Key="Text.Editor.Open" xml:space="preserve">Open</x:String>
   <x:String x:Key="Text.Editor.OpenInEditor" xml:space="preserve">Edit in Editor</x:String>
   <x:String x:Key="Text.Editor.OverwriteExternalChanges" xml:space="preserve">{0} was changed outside the editor since it was opened. Overwrite those changes?</x:String>
   <x:String x:Key="Text.Editor.ReadOnly" xml:space="preserve">READ-ONLY</x:String>
   <x:String x:Key="Text.Editor.Refresh" xml:space="preserve">Refresh file list</x:String>
   <x:String x:Key="Text.Editor.Reload" xml:space="preserve">Reload from disk</x:String>
+  <x:String x:Key="Text.Editor.Rename" xml:space="preserve">Rename...</x:String>
+  <x:String x:Key="Text.Editor.Rename.Title" xml:space="preserve">Rename</x:String>
+  <x:String x:Key="Text.Editor.RenameFailed" xml:space="preserve">Failed to rename '{0}': {1}</x:String>
   <x:String x:Key="Text.Editor.Save" xml:space="preserve">Save</x:String>
   <x:String x:Key="Text.Editor.SaveFailed" xml:space="preserve">Failed to save {0}: {1}</x:String>
+  <x:String x:Key="Text.Editor.ShowIgnored" xml:space="preserve">Show ignored files</x:String>
   <x:String x:Key="Text.Editor.UnsavedChanges" xml:space="preserve">{0} has unsaved changes. Close it anyway?</x:String>
   <x:String x:Key="Text.Editor.View.Source" xml:space="preserve">Source</x:String>
   <x:String x:Key="Text.Editor.View.Split" xml:space="preserve">Split</x:String>
