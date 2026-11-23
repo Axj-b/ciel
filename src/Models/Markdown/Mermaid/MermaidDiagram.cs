@@ -21,7 +21,13 @@ namespace SourceGit.Models
             {
                 var graph = MermaidFlowchart.Parse(code);
                 if (graph == null)
-                    return null;
+                {
+                    var sequence = MermaidSequence.Parse(code);
+                    if (sequence == null)
+                        return null;
+
+                    return new MermaidSequenceControl(sequence, ResolveTheme(), ResolveTypeface());
+                }
 
                 var theme = ResolveTheme();
                 var typeface = ResolveTypeface();

@@ -34,6 +34,7 @@ namespace SourceGit.Models
         Arrow,
         Cross,
         Circle,
+        Open,
     }
 
     /// <summary>Colors and stroke overrides coming from classDef/style/linkStyle statements.</summary>
