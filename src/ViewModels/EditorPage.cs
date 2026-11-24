@@ -56,6 +56,8 @@ namespace SourceGit.ViewModels
 
         public bool HasSelectedTab => _selectedTab != null;
 
+        public bool HasTabs => Tabs.Count > 0;
+
         public bool IsSelectedTabReadOnly => _selectedTab?.IsReadOnly == true;
 
         public bool IsSelectedTabMarkdown => _selectedTab?.IsMarkdown == true;
@@ -231,6 +233,7 @@ namespace SourceGit.ViewModels
 
             var tab = new FileEditorTab(file);
             Tabs.Add(tab);
+            OnPropertyChanged(nameof(HasTabs));
             SelectedTab = tab;
         }
 
@@ -490,6 +493,24 @@ namespace SourceGit.ViewModels
                 return;
 
             RemoveTab(tab);
+        }
+
+        /// <summary>Closes every open tab after one confirmation for all unsaved files.</summary>
+        public async Task CloseAllTabsAsync()
+        {
+            if (Tabs.Count == 0)
+                return;
+
+            var dirty = Tabs.Count(x => x.IsDirty);
+            if (dirty > 0 && !await App.AskConfirmAsync(App.Text("Editor.CloseAllTabsUnsaved", dirty)))
+                return;
+
+            foreach (var tab in Tabs)
+                tab.Cleanup();
+
+            Tabs.Clear();
+            SelectedTab = null;
+            OnPropertyChanged(nameof(HasTabs));
         }
 
         /// <summary>Called by the watcher whenever the working copy changed. Debounced.</summary>
@@ -807,6 +828,7 @@ namespace SourceGit.ViewModels
 
             tab.Cleanup();
             Tabs.RemoveAt(index);
+            OnPropertyChanged(nameof(HasTabs));
 
             if (Tabs.Count == 0)
                 SelectedTab = null;

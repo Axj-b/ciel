@@ -574,6 +574,14 @@ namespace SourceGit.Views
             e.Handled = true;
         }
 
+        private async void OnCloseAllTabs(object sender, RoutedEventArgs e)
+        {
+            if (_vm != null)
+                await _vm.CloseAllTabsAsync();
+
+            e.Handled = true;
+        }
+
         private ViewModels.EditorPage _vm = null;
         private ViewModels.FileEditorTab _lastTab = null;
         private bool _attached = false;

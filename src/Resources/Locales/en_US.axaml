@@ -421,6 +421,8 @@
   <x:String x:Key="Text.Discard.Total" xml:space="preserve">{0} changes will be discarded</x:String>
   <x:String x:Key="Text.Discard.Warning" xml:space="preserve">You can't undo this action!!!</x:String>
   <x:String x:Key="Text.Editor" xml:space="preserve">Editor</x:String>
+  <x:String x:Key="Text.Editor.CloseAllTabs" xml:space="preserve">Close All Tabs</x:String>
+  <x:String x:Key="Text.Editor.CloseAllTabsUnsaved" xml:space="preserve">{0} open file(s) have unsaved changes. Close all tabs anyway?</x:String>
   <x:String x:Key="Text.Editor.DiscardChanges" xml:space="preserve">{0} has unsaved changes. Discard them and reload the file from disk?</x:String>
   <x:String x:Key="Text.Editor.CreateFailed" xml:space="preserve">Failed to create '{0}': {1}</x:String>
   <x:String x:Key="Text.Editor.Delete" xml:space="preserve">Delete</x:String>
