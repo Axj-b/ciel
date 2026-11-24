@@ -98,7 +98,7 @@ namespace SourceGit.Models
                 case Markdig.Extensions.Tables.Table table:
                     return BuildTable(table);
                 case FencedCodeBlock fenced:
-                    return BuildCode(fenced.Info, GetLines(fenced));
+                    return BuildFencedCode(fenced);
                 case CodeBlock code:
                     return BuildCode(string.Empty, GetLines(code));
                 case HtmlBlock html:
@@ -322,6 +322,29 @@ namespace SourceGit.Models
             return scroll;
         }
 
+        private Control BuildFencedCode(FencedCodeBlock fenced)
+        {
+            var code = GetLines(fenced);
+            if (NormalizeLanguage(fenced.Info) == "mermaid")
+            {
+                var diagram = MermaidDiagram.TryBuild(code);
+                if (diagram != null)
+                {
+                    diagram.Margin = new Thickness(10, 8, 10, 10);
+                    var diagramScroll = new ScrollViewer()
+                    {
+                        Content = diagram,
+                        HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                        VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                    };
+
+                    return BuildCodeChrome("mermaid", code, diagramScroll);
+                }
+            }
+
+            return BuildCode(fenced.Info, code);
+        }
+
         private Control BuildCode(string info, string code)
         {
             var language = NormalizeLanguage(info);
@@ -348,6 +371,18 @@ namespace SourceGit.Models
                     text.Inlines!.Add(new LineBreak());
             }
 
+            var scroll = new ScrollViewer()
+            {
+                Content = text,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            };
+
+            return BuildCodeChrome(language, code, scroll);
+        }
+
+        private Control BuildCodeChrome(string language, string code, Control body)
+        {
             var header = new Grid()
             {
                 ColumnDefinitions = new ColumnDefinitions("*,Auto"),
@@ -396,17 +431,10 @@ namespace SourceGit.Models
             Grid.SetColumn(copy, 1);
             header.Children.Add(copy);
 
-            var scroll = new ScrollViewer()
-            {
-                Content = text,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            };
-
             var grid = new Grid() { RowDefinitions = new RowDefinitions("Auto,*") };
             grid.Children.Add(header);
-            Grid.SetRow(scroll, 1);
-            grid.Children.Add(scroll);
+            Grid.SetRow(body, 1);
+            grid.Children.Add(body);
 
             var border = new Border() { Child = grid };
             border.Classes.Add("md_code_block");

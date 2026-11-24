@@ -13,6 +13,7 @@
            SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
            Background="Transparent"
            SelectionMode="Single"
+           ContextRequested="OnRowsContextRequested"
            DoubleTapped="OnRowDoubleTapped"
            KeyDown="OnRowKeyDown"
            ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -37,7 +38,8 @@
         <Grid ColumnDefinitions="16,16,*"
               Height="22"
               Margin="{Binding Depth, Converter={x:Static c:IntConverters.ToTreeMargin}}"
-              Background="Transparent">
+              Background="Transparent"
+              Opacity="{Binding IsIgnored, Converter={x:Static c:BoolConverters.IsIgnoredToOpacity}}">
           <ToggleButton Grid.Column="0"
                         Classes="tree_expander"
                         Focusable="False"

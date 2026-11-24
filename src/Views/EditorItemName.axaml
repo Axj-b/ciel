@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:v="using:SourceGit.Views"
+             xmlns:vm="using:SourceGit.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SourceGit.Views.EditorItemName"
+             x:DataType="vm:EditorItemName">
+  <StackPanel Orientation="Vertical" Margin="8,0">
+    <StackPanel Orientation="Horizontal">
+      <Path Width="16" Height="16"
+            Data="{StaticResource Icons.File.Add}"
+            IsVisible="{Binding ShowFileIcon}"/>
+
+      <Path Width="16" Height="16"
+            Data="{StaticResource Icons.Folder.Add}"
+            IsVisible="{Binding ShowFolderIcon}"/>
+
+      <Path Width="16" Height="16"
+            Data="{StaticResource Icons.Rename}"
+            IsVisible="{Binding ShowRenameIcon}"/>
+
+      <TextBlock FontSize="18"
+                 Margin="8,0,0,0"
+                 Classes="bold"
+                 Text="{Binding Title}"/>
+    </StackPanel>
+
+    <Grid Margin="0,16,0,0" RowDefinitions="32,32" ColumnDefinitions="110,*">
+      <TextBlock Grid.Row="0" Grid.Column="0"
+                 HorizontalAlignment="Right" VerticalAlignment="Center"
+                 Margin="0,0,8,0"
+                 Text="{DynamicResource Text.Editor.Location}"/>
+      <TextBlock Grid.Row="0" Grid.Column="1"
+                 VerticalAlignment="Center"
+                 Text="{Binding TargetText}"
+                 TextTrimming="CharacterEllipsis"/>
+
+      <TextBlock Grid.Row="1" Grid.Column="0"
+                 HorizontalAlignment="Right" VerticalAlignment="Center"
+                 Margin="0,0,8,0"
+                 Text="{DynamicResource Text.Name}"/>
+      <TextBox Grid.Row="1" Grid.Column="1"
+               Height="26"
+               VerticalAlignment="Center"
+               CornerRadius="3"
+               Text="{Binding Name, Mode=TwoWay}"
+               Watermark="{DynamicResource Text.Editor.NamePlaceholder}"
+               Tag="{Binding Source={x:Static v:StealHotKey.Enter}}"/>
+    </Grid>
+  </StackPanel>
+</UserControl>

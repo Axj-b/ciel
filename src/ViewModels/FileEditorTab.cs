@@ -44,6 +44,15 @@ namespace SourceGit.ViewModels
         /// <summary>Caret offset is restored when the user switches back to this tab.</summary>
         public int CaretOffset { get; set; } = 0;
 
+        /// <summary>Follows a rename on disk so unsaved edits and undo history stay in the tab.</summary>
+        public void UpdatePath(string repository, string relativePath)
+        {
+            File.UpdatePath(repository, relativePath);
+            OnPropertyChanged(nameof(Path));
+            OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(IsMarkdown));
+        }
+
         public async Task SaveAsync()
         {
             // Capture first so edits typed while the write is in flight keep the tab dirty.

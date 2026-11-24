@@ -11,7 +11,7 @@
   <Grid ColumnDefinitions="270,4,*">
     <!-- Working tree -->
     <Grid Grid.Column="0" RowDefinitions="Auto,*" Background="{DynamicResource Brush.SubPanel}">
-      <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="8,6,6,6">
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="8,6,6,6">
         <TextBox Grid.Column="0"
                  Height="24"
                  BorderThickness="1"
@@ -28,7 +28,14 @@
           </TextBox.InnerLeftContent>
         </TextBox>
 
-        <Button Grid.Column="1"
+        <ToggleButton Grid.Column="1"
+                      Classes="toggle_untracked"
+                      Width="26" Height="24"
+                      Margin="4,0,0,0"
+                      IsChecked="{Binding ShowIgnoredFiles, Mode=TwoWay}"
+                      ToolTip.Tip="{DynamicResource Text.Editor.ShowIgnored}"/>
+
+        <Button Grid.Column="2"
                 Classes="icon_button"
                 Width="26" Height="24"
                 Margin="4,0,0,0"
@@ -61,54 +68,70 @@
               Background="{DynamicResource Brush.SubPanel}"
               BorderThickness="0,0,0,1"
               BorderBrush="{DynamicResource Brush.Border0}">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-          <ListBox ItemsSource="{Binding Tabs}"
-                   SelectedItem="{Binding SelectedTab, Mode=TwoWay}"
-                   Background="Transparent"
-                   SelectionMode="Single"
-                   Padding="0">
-            <ListBox.ItemsPanel>
-              <ItemsPanelTemplate>
-                <StackPanel Orientation="Horizontal"/>
-              </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.Styles>
-              <Style Selector="ListBoxItem">
-                <Setter Property="Margin" Value="4,2"/>
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="MinHeight" Value="26"/>
-                <Setter Property="CornerRadius" Value="4"/>
-                <Setter Property="BorderThickness" Value="1,0,0,0"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border0}"/>
-              </Style>
-            </ListBox.Styles>
-            <ListBox.ItemTemplate>
-              <DataTemplate DataType="vm:FileEditorTab">
-                <StackPanel Orientation="Horizontal" Margin="8,0">
-                  <Ellipse Width="6" Height="6"
-                           Margin="0,0,6,0"
-                           VerticalAlignment="Center"
-                           Fill="{DynamicResource Brush.Accent}"
-                           IsVisible="{Binding IsDirty}"/>
-                  <TextBlock Text="{Binding Name}"
+        <Grid ColumnDefinitions="*,Auto">
+          <ScrollViewer Grid.Column="0"
+                        HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Disabled">
+            <ListBox ItemsSource="{Binding Tabs}"
+                     SelectedItem="{Binding SelectedTab, Mode=TwoWay}"
+                     Background="Transparent"
+                     SelectionMode="Single"
+                     Padding="0">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
+              <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                  <Setter Property="Margin" Value="4,2"/>
+                  <Setter Property="Padding" Value="0"/>
+                  <Setter Property="MinHeight" Value="26"/>
+                  <Setter Property="CornerRadius" Value="4"/>
+                  <Setter Property="BorderThickness" Value="1,0,0,0"/>
+                  <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border0}"/>
+                </Style>
+              </ListBox.Styles>
+              <ListBox.ItemTemplate>
+                <DataTemplate DataType="vm:FileEditorTab">
+                  <StackPanel Orientation="Horizontal" Margin="8,0">
+                    <Ellipse Width="6" Height="6"
+                             Margin="0,0,6,0"
                              VerticalAlignment="Center"
-                             FontSize="11"
-                             MaxWidth="200"
-                             TextTrimming="CharacterEllipsis"
-                             ToolTip.Tip="{Binding Path}"/>
-                  <Button Classes="icon_button"
-                          Width="16" Height="16"
-                          Margin="6,0,0,0"
-                          Padding="0"
-                          VerticalAlignment="Center"
-                          Click="OnCloseTab">
-                    <Path Width="8" Height="8" Data="{StaticResource Icons.Close}"/>
-                  </Button>
-                </StackPanel>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </ScrollViewer>
+                             Fill="{DynamicResource Brush.Accent}"
+                             IsVisible="{Binding IsDirty}"/>
+                    <TextBlock Text="{Binding Name}"
+                               VerticalAlignment="Center"
+                               FontSize="11"
+                               MaxWidth="200"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip.Tip="{Binding Path}"/>
+                    <Button Classes="icon_button"
+                            Width="16" Height="16"
+                            Margin="6,0,0,0"
+                            Padding="0"
+                            VerticalAlignment="Center"
+                            Click="OnCloseTab">
+                      <Path Width="8" Height="8" Data="{StaticResource Icons.Close}"/>
+                    </Button>
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </ScrollViewer>
+
+          <Button Grid.Column="1"
+                  Classes="icon_button"
+                  Width="24" Height="24"
+                  Margin="2,0,6,0"
+                  Padding="0"
+                  VerticalAlignment="Center"
+                  IsVisible="{Binding HasTabs}"
+                  Click="OnCloseAllTabs"
+                  ToolTip.Tip="{DynamicResource Text.Editor.CloseAllTabs}">
+            <Path Width="10" Height="10" Data="{StaticResource Icons.Close}"/>
+          </Button>
+        </Grid>
       </Border>
 
       <!-- Toolbar -->
