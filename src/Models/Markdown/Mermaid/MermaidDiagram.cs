@@ -19,6 +19,14 @@ namespace SourceGit.Models
         {
             try
             {
+                var pie = MermaidPie.Parse(code);
+                if (pie != null)
+                    return new MermaidPieControl(pie, ResolveTheme(), ResolveTypeface());
+
+                var gantt = MermaidGantt.Parse(code);
+                if (gantt != null)
+                    return new MermaidGanttControl(gantt, ResolveTheme(), ResolveTypeface());
+
                 var graph = MermaidFlowchart.Parse(code);
                 if (graph == null)
                     graph = MermaidState.Parse(code);
