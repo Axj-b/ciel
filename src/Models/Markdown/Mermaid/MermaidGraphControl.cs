@@ -31,26 +31,36 @@ namespace SourceGit.Models
         public double BoxWidth { get; set; }
     }
 
+    /// <summary>Everything prepared for drawing a graph: layout, labels and compartment content.</summary>
+    public class MermaidGraphView
+    {
+        public MermaidLayoutResult Layout { get; set; }
+        public Dictionary<MermaidNode, MermaidLabel> Labels { get; } = new();
+        public Dictionary<MermaidNode, MermaidTableDraw> Tables { get; } = new();
+        public Dictionary<MermaidEdge, MermaidLabel> EdgeLabels { get; } = new();
+        public Dictionary<MermaidEdge, MermaidLabel> TailLabels { get; } = new();
+        public Dictionary<MermaidEdge, MermaidLabel> HeadLabels { get; } = new();
+        public Dictionary<MermaidSubgraph, MermaidLabel> Titles { get; } = new();
+    }
+
     /// <summary>
     ///     Draws a laid-out mermaid graph with DrawingContext primitives. All brushes and text are
     ///     prepared up front; the view is rebuilt on theme changes like every other markdown block.
     /// </summary>
     public class MermaidGraphControl : Control
     {
-        public MermaidGraphControl(
-            MermaidLayoutResult layout,
-            IReadOnlyDictionary<MermaidNode, MermaidLabel> labels,
-            IReadOnlyDictionary<MermaidEdge, MermaidLabel> edgeLabels,
-            IReadOnlyDictionary<MermaidSubgraph, MermaidLabel> titles,
-            MermaidTheme theme)
+        public MermaidGraphControl(MermaidGraphView view, MermaidTheme theme)
         {
-            _layout = layout;
-            _labels = labels;
-            _edgeLabels = edgeLabels;
-            _titles = titles;
+            _layout = view.Layout;
+            _labels = view.Labels;
+            _tables = view.Tables;
+            _edgeLabels = view.EdgeLabels;
+            _tailLabels = view.TailLabels;
+            _headLabels = view.HeadLabels;
+            _titles = view.Titles;
             _theme = theme;
 
-            foreach (var item in layout.Nodes)
+            foreach (var item in _layout.Nodes)
             {
                 var style = item.Node.ResolvedStyle;
                 var fill = style?.Fill is { } fillColor ? new SolidColorBrush(fillColor) : theme.NodeFill;
@@ -60,7 +70,7 @@ namespace SourceGit.Models
                 _nodePaints[item.Node] = (fill, pen);
             }
 
-            foreach (var route in layout.Edges)
+            foreach (var route in _layout.Edges)
             {
                 var edge = route.Edge;
                 var style = edge.Style;
@@ -92,6 +102,10 @@ namespace SourceGit.Models
 
             foreach (var item in _layout.Nodes)
                 DrawNode(context, item);
+
+            // Labels paint last so a dense layout cannot clip them behind a node box.
+            foreach (var route in _layout.Edges)
+                DrawEdgeLabels(context, route);
         }
 
         private void DrawEdge(DrawingContext context, MermaidLayoutEdge route)
@@ -117,7 +131,7 @@ namespace SourceGit.Models
 
                 context.DrawGeometry(null, pen, geometry);
                 if (edge.Head != MermaidEndKind.None)
-                    DrawHead(context, end, end - c2, edge.Head, pen.Brush);
+                    DrawHead(context, end, end - c2, edge.Head, pen.Brush, _theme.NodeFill);
             }
             else if (route.Points.Count >= 2)
             {
@@ -125,12 +139,13 @@ namespace SourceGit.Models
                 var headDir = points[^1] - points[^2];
                 var tailDir = points[0] - points[1];
 
-                if (edge.Head == MermaidEndKind.Arrow)
-                    points[^1] = Shorten(points[^1], headDir, 8);
-                else if (edge.Head != MermaidEndKind.None)
-                    points[^1] = Shorten(points[^1], headDir, 7);
+                var headTrim = Trim(edge.Head);
+                if (headTrim > 0)
+                    points[^1] = Shorten(points[^1], headDir, headTrim);
 
-                if (edge.TailArrow)
+                if (edge.Tail != MermaidEndKind.None)
+                    points[0] = Shorten(points[0], tailDir, Trim(edge.Tail));
+                else if (edge.TailArrow)
                     points[0] = Shorten(points[0], tailDir, 8);
 
                 var geometry = new StreamGeometry();
@@ -144,10 +159,17 @@ namespace SourceGit.Models
                 context.DrawGeometry(null, pen, geometry);
 
                 if (edge.Head != MermaidEndKind.None)
-                    DrawHead(context, route.Points[^1], headDir, edge.Head, pen.Brush);
-                if (edge.TailArrow)
-                    DrawHead(context, route.Points[0], tailDir, MermaidEndKind.Arrow, pen.Brush);
+                    DrawHead(context, route.Points[^1], headDir, edge.Head, pen.Brush, _theme.NodeFill);
+                if (edge.Tail != MermaidEndKind.None)
+                    DrawHead(context, route.Points[0], tailDir, edge.Tail, pen.Brush, _theme.NodeFill);
+                else if (edge.TailArrow)
+                    DrawHead(context, route.Points[0], tailDir, MermaidEndKind.Arrow, pen.Brush, _theme.NodeFill);
             }
+        }
+
+        private void DrawEdgeLabels(DrawingContext context, MermaidLayoutEdge route)
+        {
+            var edge = route.Edge;
 
             if (edge.Label != null && _edgeLabels.TryGetValue(edge, out var label))
             {
@@ -160,6 +182,79 @@ namespace SourceGit.Models
                 context.DrawRectangle(_theme.EdgeLabelBg, null, bg, 3, 3);
                 context.DrawText(label.Text, new Point(center.X - label.BoxWidth / 2, center.Y - label.Text.Height / 2));
             }
+
+            if (edge.TailLabel != null && _tailLabels.TryGetValue(edge, out var tail))
+                DrawEndLabel(context, route, tail, 0.16);
+            if (edge.HeadLabel != null && _headLabels.TryGetValue(edge, out var head))
+                DrawEndLabel(context, route, head, 0.84);
+        }
+
+        private static double Trim(MermaidEndKind kind)
+        {
+            return kind switch
+            {
+                MermaidEndKind.None or MermaidEndKind.Arrow => kind == MermaidEndKind.Arrow ? 8 : 0,
+                MermaidEndKind.Cross or MermaidEndKind.Circle or MermaidEndKind.Open => 7,
+                _ => 0,
+            };
+        }
+
+        private void DrawEndLabel(DrawingContext context, MermaidLayoutEdge route, MermaidLabel label, double fraction)
+        {
+            if (route.Points.Count < 2)
+                return;
+
+            Locate(route.Points, fraction, out var point, out var direction);
+            var length = direction.Length;
+            var normal = length < 0.001 ? new Vector(0, 1) : new Vector(-direction.Y / length, direction.X / length);
+            if (normal.Y < 0)
+                normal = -normal;
+
+            // Opposite side of the line from the relation label, which straddles the route.
+            var origin = point + normal * 14;
+            var bg = new Rect(
+                origin.X - label.Text.Width / 2 - 3,
+                origin.Y - label.Text.Height / 2 - 1,
+                label.Text.Width + 6,
+                label.Text.Height + 2);
+            context.DrawRectangle(_theme.EdgeLabelBg, null, bg, 3, 3);
+            context.DrawText(label.Text, new Point(origin.X - label.Text.Width / 2, origin.Y - label.Text.Height / 2));
+        }
+
+        private static void Locate(IReadOnlyList<Point> points, double fraction, out Point point, out Vector direction)
+        {
+            var total = 0.0;
+            for (var i = 1; i < points.Count; i++)
+            {
+                var dx = points[i].X - points[i - 1].X;
+                var dy = points[i].Y - points[i - 1].Y;
+                total += Math.Sqrt(dx * dx + dy * dy);
+            }
+
+            if (total < 0.001)
+            {
+                point = points[0];
+                direction = new Vector(1, 0);
+                return;
+            }
+
+            var target = total * fraction;
+            for (var i = 1; i < points.Count; i++)
+            {
+                var segment = new Vector(points[i].X - points[i - 1].X, points[i].Y - points[i - 1].Y);
+                var length = segment.Length;
+                if (target <= length || i == points.Count - 1)
+                {
+                    point = points[i - 1] + segment * (length < 0.001 ? 0 : target / length);
+                    direction = segment;
+                    return;
+                }
+
+                target -= length;
+            }
+
+            point = points[^1];
+            direction = points[^1] - points[^2];
         }
 
         private static Point Shorten(Point tip, Vector direction, double amount)
@@ -171,7 +266,7 @@ namespace SourceGit.Models
             return tip - direction * (amount / length);
         }
 
-        private static void DrawHead(DrawingContext context, Point tip, Vector direction, MermaidEndKind kind, IBrush brush)
+        private static void DrawHead(DrawingContext context, Point tip, Vector direction, MermaidEndKind kind, IBrush brush, IBrush fill)
         {
             var length = direction.Length;
             if (length < 0.001)
@@ -212,6 +307,55 @@ namespace SourceGit.Models
                     context.DrawEllipse(brush, null, tip - dir * 4, 4, 4);
                     break;
                 }
+                case MermaidEndKind.HollowTriangle:
+                {
+                    var back = tip - dir * 12;
+                    DrawPolygon(context, fill, new Pen(brush, 1.4), tip, back + normal * 6, back - normal * 6);
+                    break;
+                }
+                case MermaidEndKind.FilledDiamond:
+                case MermaidEndKind.HollowDiamond:
+                {
+                    var middle = tip - dir * 7;
+                    var back = tip - dir * 14;
+                    DrawPolygon(context, kind == MermaidEndKind.FilledDiamond ? brush : fill, new Pen(brush, 1.3),
+                        tip, middle + normal * 5, back, middle - normal * 5);
+                    break;
+                }
+                case MermaidEndKind.One:
+                {
+                    var center = tip - dir * 2.5;
+                    var pen = new Pen(brush, 1.4);
+                    context.DrawLine(pen, center + normal * 5, center - normal * 5);
+                    break;
+                }
+                case MermaidEndKind.Many:
+                {
+                    var origin = tip - dir * 9;
+                    var pen = new Pen(brush, 1.4);
+                    context.DrawLine(pen, origin, tip + normal * 5);
+                    context.DrawLine(pen, origin, tip);
+                    context.DrawLine(pen, origin, tip - normal * 5);
+                    break;
+                }
+                case MermaidEndKind.ZeroOne:
+                {
+                    var center = tip - dir * 2.5;
+                    var pen = new Pen(brush, 1.4);
+                    context.DrawLine(pen, center + normal * 5, center - normal * 5);
+                    context.DrawEllipse(fill, new Pen(brush, 1.3), tip - dir * 9, 3.5, 3.5);
+                    break;
+                }
+                case MermaidEndKind.ZeroMany:
+                {
+                    var origin = tip - dir * 9;
+                    var pen = new Pen(brush, 1.4);
+                    context.DrawLine(pen, origin, tip + normal * 5);
+                    context.DrawLine(pen, origin, tip);
+                    context.DrawLine(pen, origin, tip - normal * 5);
+                    context.DrawEllipse(fill, new Pen(brush, 1.3), tip - dir * 13, 3.5, 3.5);
+                    break;
+                }
             }
         }
 
@@ -228,6 +372,25 @@ namespace SourceGit.Models
 
             switch (item.Node.Shape)
             {
+                case MermaidNodeShape.ClassBox:
+                {
+                    context.DrawRectangle(fill, pen, rect, 3, 3);
+                    if (_tables.TryGetValue(item.Node, out var table) && _labels.TryGetValue(item.Node, out var tableTitle))
+                        MermaidTable.Draw(context, rect, tableTitle, table, _theme);
+
+                    return;
+                }
+                case MermaidNodeShape.StartMarker:
+                {
+                    context.DrawEllipse(_theme.NodeText, null, rect.Center, w / 2, h / 2);
+                    return;
+                }
+                case MermaidNodeShape.EndMarker:
+                {
+                    context.DrawEllipse(fill, new Pen(_theme.NodeText, 1.5), rect.Center, w / 2, h / 2);
+                    context.DrawEllipse(_theme.NodeText, null, rect.Center, w / 4.6, h / 4.6);
+                    return;
+                }
                 case MermaidNodeShape.Rectangle:
                     context.DrawRectangle(fill, pen, rect);
                     break;
@@ -342,7 +505,10 @@ namespace SourceGit.Models
 
         private readonly MermaidLayoutResult _layout;
         private readonly IReadOnlyDictionary<MermaidNode, MermaidLabel> _labels;
+        private readonly IReadOnlyDictionary<MermaidNode, MermaidTableDraw> _tables;
         private readonly IReadOnlyDictionary<MermaidEdge, MermaidLabel> _edgeLabels;
+        private readonly IReadOnlyDictionary<MermaidEdge, MermaidLabel> _tailLabels;
+        private readonly IReadOnlyDictionary<MermaidEdge, MermaidLabel> _headLabels;
         private readonly IReadOnlyDictionary<MermaidSubgraph, MermaidLabel> _titles;
         private readonly MermaidTheme _theme;
         private readonly Dictionary<MermaidNode, (IBrush Fill, IPen Pen)> _nodePaints = new();

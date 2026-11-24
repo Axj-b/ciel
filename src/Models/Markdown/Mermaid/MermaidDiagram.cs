@@ -21,6 +21,13 @@ namespace SourceGit.Models
             {
                 var graph = MermaidFlowchart.Parse(code);
                 if (graph == null)
+                    graph = MermaidState.Parse(code);
+                if (graph == null)
+                    graph = MermaidClass.Parse(code);
+                if (graph == null)
+                    graph = MermaidEr.Parse(code);
+
+                if (graph == null)
                 {
                     var sequence = MermaidSequence.Parse(code);
                     if (sequence == null)
@@ -31,49 +38,83 @@ namespace SourceGit.Models
 
                 var theme = ResolveTheme();
                 var typeface = ResolveTypeface();
+                var bold = new Typeface(typeface.FontFamily, FontStyle.Normal, FontWeight.SemiBold);
+                var italic = new Typeface(typeface.FontFamily, FontStyle.Italic);
 
-                var labels = new Dictionary<MermaidNode, MermaidLabel>();
+                var view = new MermaidGraphView();
                 var nodeSizes = new Dictionary<MermaidNode, Size>();
                 foreach (var node in graph.Nodes)
-                {
-                    var label = CreateText(CleanLabel(node.Label, node.Id), typeface, 13, NodeTextBrush(node, theme), 240, true);
-                    labels[node] = label;
-                    nodeSizes[node] = ShapeSize(node.Shape, label.Text.Width, label.Text.Height);
-                }
+                    nodeSizes[node] = MeasureNode(node, view, typeface, bold, italic, theme);
 
-                var edgeLabels = new Dictionary<MermaidEdge, MermaidLabel>();
                 var labelSizes = new Dictionary<MermaidEdge, Size>();
                 foreach (var edge in graph.Edges)
                 {
-                    if (string.IsNullOrEmpty(edge.Label))
-                        continue;
+                    if (!string.IsNullOrEmpty(edge.Label))
+                    {
+                        var brush = edge.Style?.TextColor is { } color ? new SolidColorBrush(color) : theme.EdgeLabelText;
+                        var label = CreateText(CleanLabel(edge.Label, edge.Label), typeface, 11.5, brush, 200, true);
+                        view.EdgeLabels[edge] = label;
+                        labelSizes[edge] = new Size(label.Text.Width + 10, label.Text.Height + 4);
+                    }
 
-                    var brush = edge.Style?.TextColor is { } color ? new SolidColorBrush(color) : theme.EdgeLabelText;
-                    var label = CreateText(CleanLabel(edge.Label, edge.Label), typeface, 11.5, brush, 200, true);
-                    edgeLabels[edge] = label;
-                    labelSizes[edge] = new Size(label.Text.Width + 10, label.Text.Height + 4);
+                    if (!string.IsNullOrEmpty(edge.TailLabel))
+                        view.TailLabels[edge] = CreateText(edge.TailLabel, typeface, 10.5, theme.EdgeLabelText, 80, false);
+                    if (!string.IsNullOrEmpty(edge.HeadLabel))
+                        view.HeadLabels[edge] = CreateText(edge.HeadLabel, typeface, 10.5, theme.EdgeLabelText, 80, false);
                 }
 
-                var titles = new Dictionary<MermaidSubgraph, MermaidLabel>();
                 var titleSizes = new Dictionary<MermaidSubgraph, Size>();
                 foreach (var subgraph in graph.Subgraphs)
                 {
-                    var titleTypeface = new Typeface(typeface.FontFamily, FontStyle.Normal, FontWeight.SemiBold);
-                    var title = CreateText(CleanLabel(subgraph.Title, subgraph.Id), titleTypeface, 12, theme.SubgraphTitle, 320, false);
-                    titles[subgraph] = title;
+                    var title = CreateText(CleanLabel(subgraph.Title, subgraph.Id), bold, 12, theme.SubgraphTitle, 320, false);
+                    view.Titles[subgraph] = title;
                     titleSizes[subgraph] = new Size(title.Text.Width, title.Text.Height);
                 }
 
-                var layout = MermaidGraphLayout.Layout(graph, nodeSizes, labelSizes, titleSizes);
-                if (layout == null)
+                view.Layout = MermaidGraphLayout.Layout(graph, nodeSizes, labelSizes, titleSizes);
+                if (view.Layout == null)
                     return null;
 
-                return new MermaidGraphControl(layout, labels, edgeLabels, titles, theme);
+                return new MermaidGraphControl(view, theme);
             }
             catch
             {
                 return null;
             }
+        }
+
+        private static Size MeasureNode(MermaidNode node, MermaidGraphView view, Typeface typeface, Typeface bold, Typeface italic, MermaidTheme theme)
+        {
+            if (node.Shape is MermaidNodeShape.StartMarker or MermaidNodeShape.EndMarker)
+                return new Size(18, 18);
+
+            if (node.Shape == MermaidNodeShape.ClassBox)
+            {
+                var title = CreateText(CleanLabel(node.Label, node.Id), bold, 12.5, NodeTextBrush(node, theme), 260, false);
+                var table = new MermaidTableDraw();
+                if (!string.IsNullOrEmpty(node.Annotation))
+                    table.Annotation = CreateText($"\u00AB{node.Annotation}\u00BB", italic, 10.5, theme.SubgraphTitle, 260, false);
+
+                foreach (var row in node.Rows)
+                {
+                    table.Rows.Add(new MermaidTableRowDraw()
+                    {
+                        Text = CreateText(row.Text, typeface, 11.5, theme.NodeText, 320, false),
+                        Value = string.IsNullOrEmpty(row.Value)
+                            ? null
+                            : CreateText(row.Value, typeface, 10.5, theme.SubgraphTitle, 160, false),
+                        Separator = row.Separator,
+                    });
+                }
+
+                view.Labels[node] = title;
+                view.Tables[node] = table;
+                return MermaidTable.Measure(title, table);
+            }
+
+            var label = CreateText(CleanLabel(node.Label, node.Id), typeface, 13, NodeTextBrush(node, theme), 240, true);
+            view.Labels[node] = label;
+            return ShapeSize(node.Shape, label.Text.Width, label.Text.Height);
         }
 
         private static MermaidLabel CreateText(string text, Typeface typeface, double fontSize, IBrush brush, double maxWidth, bool centered)

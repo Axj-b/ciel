@@ -38,13 +38,13 @@ namespace SourceGit.Models
             public MermaidGraph Run()
             {
                 var lines = _code.Split('\n');
-                var start = SkipFrontmatter(lines);
+                var start = MermaidSource.SkipFrontmatter(lines);
                 if (start < 0)
                     return null;
 
                 var statements = new List<string>();
                 for (var i = start; i < lines.Length; i++)
-                    SplitStatements(StripComment(lines[i]), statements);
+                    SplitStatements(MermaidSource.StripComment(lines[i]), statements);
 
                 if (statements.Count == 0)
                     return null;
@@ -85,8 +85,8 @@ namespace SourceGit.Models
                     return true;
                 }
 
-                var keyword = Regex.Match(statement, @"^[A-Za-z]+").Value;
-                switch (keyword.ToLowerInvariant())
+                var keyword = MermaidSource.Keyword(statement);
+                switch (keyword)
                 {
                     case "subgraph":
                         return ParseSubgraph(graph, statement[8..].Trim(), parent, scope);
@@ -615,48 +615,6 @@ namespace SourceGit.Models
                     "semi" => ";",
                     _ => char.ConvertFromUtf32(int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture)),
                 });
-            }
-
-            private static string StripComment(string line)
-            {
-                var inQuote = false;
-                for (var i = 0; i < line.Length; i++)
-                {
-                    var c = line[i];
-                    if (c == '"')
-                        inQuote = !inQuote;
-                    else if (!inQuote && c == '%' && i + 1 < line.Length && line[i + 1] == '%')
-                        return line[..i];
-                }
-
-                return line;
-            }
-
-            private static int SkipFrontmatter(string[] lines)
-            {
-                var first = -1;
-                for (var i = 0; i < lines.Length; i++)
-                {
-                    if (string.IsNullOrWhiteSpace(lines[i]))
-                        continue;
-
-                    first = i;
-                    break;
-                }
-
-                if (first < 0)
-                    return -1;
-
-                if (lines[first].Trim() != "---")
-                    return first;
-
-                for (var i = first + 1; i < lines.Length; i++)
-                {
-                    if (lines[i].Trim() == "---")
-                        return i + 1 < lines.Length ? i + 1 : -1;
-                }
-
-                return -1;
             }
 
             private static void SplitStatements(string line, List<string> output)

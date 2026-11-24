@@ -156,20 +156,11 @@ namespace SourceGit.Models
 
             public MermaidSequenceDiagram Run()
             {
-                var lines = _code.Split('\n');
-                var start = SkipFrontmatter(lines);
-                if (start < 0)
+                var statements = MermaidSource.Statements(_code);
+                if (statements == null || statements.Count == 0)
                     return null;
 
-                var statements = new List<string>();
-                for (var i = start; i < lines.Length; i++)
-                {
-                    var line = StripComment(lines[i]).Trim();
-                    if (line.Length > 0)
-                        statements.Add(line);
-                }
-
-                if (statements.Count == 0 || !statements[0].Equals("sequenceDiagram", StringComparison.OrdinalIgnoreCase))
+                if (!statements[0].Equals("sequenceDiagram", StringComparison.OrdinalIgnoreCase))
                     return null;
 
                 var diagram = new MermaidSequenceDiagram();
@@ -188,7 +179,7 @@ namespace SourceGit.Models
 
             private bool ParseStatement(MermaidSequenceDiagram diagram, string statement, Stack<(string Kind, MermaidSequenceBox Box)> scope)
             {
-                var keyword = Regex.Match(statement, @"^[A-Za-z]+").Value.ToLowerInvariant();
+                var keyword = MermaidSource.Keyword(statement);
                 var box = scope.Count > 0 ? scope.Peek().Box : null;
 
                 switch (keyword)
@@ -424,48 +415,6 @@ namespace SourceGit.Models
                 }
 
                 return Color.TryParse(text, out var color) ? color : null;
-            }
-
-            private static string StripComment(string line)
-            {
-                var inQuote = false;
-                for (var i = 0; i < line.Length; i++)
-                {
-                    var c = line[i];
-                    if (c == '"')
-                        inQuote = !inQuote;
-                    else if (!inQuote && c == '%' && i + 1 < line.Length && line[i + 1] == '%')
-                        return line[..i];
-                }
-
-                return line;
-            }
-
-            private static int SkipFrontmatter(string[] lines)
-            {
-                var first = -1;
-                for (var i = 0; i < lines.Length; i++)
-                {
-                    if (string.IsNullOrWhiteSpace(lines[i]))
-                        continue;
-
-                    first = i;
-                    break;
-                }
-
-                if (first < 0)
-                    return -1;
-
-                if (lines[first].Trim() != "---")
-                    return first;
-
-                for (var i = first + 1; i < lines.Length; i++)
-                {
-                    if (lines[i].Trim() == "---")
-                        return i + 1 < lines.Length ? i + 1 : -1;
-                }
-
-                return -1;
             }
 
             private readonly string _code;

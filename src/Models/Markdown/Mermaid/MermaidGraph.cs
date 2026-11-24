@@ -19,6 +19,9 @@ namespace SourceGit.Models
         Trapezoid,
         TrapezoidAlt,
         Asymmetric,
+        ClassBox,
+        StartMarker,
+        EndMarker,
     }
 
     public enum MermaidLineStyle
@@ -35,6 +38,13 @@ namespace SourceGit.Models
         Cross,
         Circle,
         Open,
+        HollowTriangle,
+        FilledDiamond,
+        HollowDiamond,
+        One,
+        Many,
+        ZeroOne,
+        ZeroMany,
     }
 
     /// <summary>Colors and stroke overrides coming from classDef/style/linkStyle statements.</summary>
@@ -51,11 +61,21 @@ namespace SourceGit.Models
     {
         public string Id { get; set; }
         public string Label { get; set; }
+        public string Annotation { get; set; }
         public MermaidNodeShape Shape { get; set; } = MermaidNodeShape.Rectangle;
         public MermaidNodeStyle Style { get; set; }
         public MermaidNodeStyle ResolvedStyle { get; set; }
         public List<string> Classes { get; } = new();
+        public List<MermaidTableRow> Rows { get; } = new();
         public MermaidSubgraph Parent { get; set; }
+    }
+
+    /// <summary>A row inside a class or entity box: a left-aligned cell plus an optional right one.</summary>
+    public class MermaidTableRow
+    {
+        public string Text { get; set; }
+        public string Value { get; set; }
+        public bool Separator { get; set; }
     }
 
     public class MermaidEdge
@@ -63,8 +83,11 @@ namespace SourceGit.Models
         public MermaidNode From { get; set; }
         public MermaidNode To { get; set; }
         public string Label { get; set; }
+        public string TailLabel { get; set; }
+        public string HeadLabel { get; set; }
         public MermaidLineStyle Line { get; set; } = MermaidLineStyle.Solid;
         public MermaidEndKind Head { get; set; } = MermaidEndKind.Arrow;
+        public MermaidEndKind Tail { get; set; } = MermaidEndKind.None;
         public bool TailArrow { get; set; }
         public int Span { get; set; } = 1;
         public MermaidNodeStyle Style { get; set; }
