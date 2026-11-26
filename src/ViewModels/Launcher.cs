@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Avalonia.Collections;
 using Avalonia.Threading;
@@ -35,7 +38,12 @@ namespace SourceGit.ViewModels
             set
             {
                 if (SetProperty(ref _activePage, value))
+                {
+                    if (value != null && IsUnopenedPage(value))
+                        _ = OpenUnopenedPageAsync(value);
+
                     PostActivePageChanged();
+                }
             }
         }
 
@@ -58,24 +66,20 @@ namespace SourceGit.ViewModels
 
             ActiveWorkspace = Preferences.Instance.GetActiveWorkspace();
             Pages = new AvaloniaList<LauncherPage>();
-            AddNewTab();
+            RestoreWorkspaceTabs();
 
-            var repos = ActiveWorkspace.Repositories.ToArray();
-            foreach (var repo in repos)
-                OpenRepositoryInTab(repo, null);
+            var activeIdx = ActiveWorkspace.ActiveIdx;
+            if (activeIdx > 0 && activeIdx < Pages.Count)
+                ActivePage = Pages[activeIdx];
+            else
+                ActivePage = Pages[0];
 
             _ignoreIndexChange = false;
 
             if (!TryOpenRepositoryFromPath(startupRepo))
-            {
-                var activeIdx = ActiveWorkspace.ActiveIdx;
-                if (activeIdx > 0 && activeIdx < Pages.Count)
-                    ActivePage = Pages[activeIdx];
-                else
-                    ActivePage = Pages[0];
-            }
+                PostActivePageChanged();
 
-            PostActivePageChanged();
+            StartBackgroundLoading();
         }
 
         public bool TryOpenRepositoryFromPath(string repo)
@@ -119,6 +123,7 @@ namespace SourceGit.ViewModels
 
         public void CloseAll()
         {
+            _loadCts?.Cancel();
             _ignoreIndexChange = true;
 
             foreach (var one in Pages)
@@ -145,11 +150,7 @@ namespace SourceGit.ViewModels
                 CloseRepositoryInTab(one, false);
 
             Pages.Clear();
-            AddNewTab();
-
-            var repos = to.Repositories.ToArray();
-            foreach (var repo in repos)
-                OpenRepositoryInTab(repo, null);
+            RestoreWorkspaceTabs();
 
             var activeIdx = to.ActiveIdx;
             if (activeIdx >= 0 && activeIdx < Pages.Count)
@@ -160,7 +161,7 @@ namespace SourceGit.ViewModels
             _ignoreIndexChange = false;
             PostActivePageChanged();
             Preferences.Instance.Save();
-            GC.Collect();
+            StartBackgroundLoading();
         }
 
         public void AddNewTab()
@@ -178,12 +179,7 @@ namespace SourceGit.ViewModels
             var toIdx = Pages.IndexOf(to);
             Pages.Move(fromIdx, toIdx);
 
-            _activeWorkspace.Repositories.Clear();
-            foreach (var p in Pages)
-            {
-                if (p.Data is Repository r)
-                    _activeWorkspace.Repositories.Add(r.FullPath);
-            }
+            RebuildWorkspaceRepositories();
 
             _ignoreIndexChange = false;
             ActivePage = from;
@@ -236,15 +232,19 @@ namespace SourceGit.ViewModels
             if (Pages.Count == 1)
             {
                 var last = Pages[0];
-                if (last.Data is Repository repo)
+                if (last.Data is Repository || IsUnopenedPage(last))
                 {
                     _activeWorkspace.Repositories.Clear();
                     _activeWorkspace.ActiveIdx = 0;
 
-                    if (last.Node.IsUnmanaged)
-                        last.Node.SaveMinimalInfo(repo.GitDir);
-                    repo.Close();
+                    if (last.Data is Repository repo)
+                    {
+                        if (last.Node.IsUnmanaged)
+                            last.Node.SaveMinimalInfo(repo.GitDir);
+                        repo.Close();
+                    }
 
+                    CancelPendingOpen(last);
                     Welcome.Instance.ClearSearchFilter();
                     last.Node = new RepositoryNode() { Id = Guid.NewGuid().ToString() };
                     last.Data = Welcome.Instance;
@@ -337,35 +337,19 @@ namespace SourceGit.ViewModels
                 }
             }
 
-            if (!Directory.Exists(node.Id))
+            var (error, isBare, gitDir) = ResolveRepositoryLocation(node.Id);
+            if (error != null)
             {
                 ActivePage.Notifications.Add(new Models.Notification
                 {
                     Group = node.Id,
-                    Message = "Repository does NOT exist any more. Please remove it.",
+                    Message = error,
                     IsError = true,
                 });
                 return;
             }
 
-            var isBare = new Commands.IsBareRepository(node.Id).GetResult();
-            var gitDir = isBare ? node.Id : GetRepositoryGitDir(node.Id);
-            if (string.IsNullOrEmpty(gitDir))
-            {
-                ActivePage.Notifications.Add(new Models.Notification
-                {
-                    Group = node.Id,
-                    Message = "Given path is not a valid git repository!",
-                    IsError = true,
-                });
-                return;
-            }
-
-            if (node.IsUnmanaged)
-                node.LoadMinimalInfo(gitDir);
-
-            var repo = new Repository(isBare, node.Id, gitDir);
-            repo.Open();
+            var repo = CreateRepository(node, isBare, gitDir);
 
             if (page == null)
             {
@@ -387,12 +371,7 @@ namespace SourceGit.ViewModels
                 page.Data = repo;
             }
 
-            _activeWorkspace.Repositories.Clear();
-            foreach (var p in Pages)
-            {
-                if (p.Data is Repository r)
-                    _activeWorkspace.Repositories.Add(r.FullPath);
-            }
+            RebuildWorkspaceRepositories();
 
             if (_activePage == page)
                 PostActivePageChanged();
@@ -493,7 +472,7 @@ namespace SourceGit.ViewModels
             _activePage?.Notifications.Add(notification);
         }
 
-        private string GetRepositoryGitDir(string repo)
+        private static string GetRepositoryGitDir(string repo)
         {
             var fullpath = Path.Combine(repo, ".git");
             if (Directory.Exists(fullpath))
@@ -526,6 +505,8 @@ namespace SourceGit.ViewModels
 
         private void CloseRepositoryInTab(LauncherPage page, bool removeFromWorkspace = true)
         {
+            CancelPendingOpen(page);
+
             if (page.Data is Repository repo)
             {
                 if (removeFromWorkspace)
@@ -535,6 +516,10 @@ namespace SourceGit.ViewModels
                     page.Node.SaveMinimalInfo(repo.GitDir);
 
                 repo.Close();
+            }
+            else if (removeFromWorkspace && IsUnopenedPage(page))
+            {
+                _activeWorkspace.Repositories.Remove(page.Node.Id);
             }
 
             page.Popup?.Cleanup();
@@ -547,8 +532,9 @@ namespace SourceGit.ViewModels
             if (_ignoreIndexChange)
                 return;
 
-            if (_activePage is { Data: Repository repo })
-                _activeWorkspace.ActiveIdx = _activeWorkspace.Repositories.IndexOf(repo.FullPath);
+            var activePath = GetPageRepositoryPath(_activePage);
+            if (activePath != null)
+                _activeWorkspace.ActiveIdx = _activeWorkspace.Repositories.IndexOf(activePath);
 
             var builder = new StringBuilder(512);
             builder.Append(string.IsNullOrEmpty(_activePage.Node.Name) ? "Repositories" : _activePage.Node.Name);
@@ -561,11 +547,191 @@ namespace SourceGit.ViewModels
             CommandPalette = null;
         }
 
+        /// <summary>
+        /// Fills the tab bar from the active workspace. Only the active tab is opened right away,
+        /// the others are created as unopened pages and loaded in the background.
+        /// </summary>
+        private void RestoreWorkspaceTabs()
+        {
+            var repos = ActiveWorkspace.Repositories.ToArray();
+            if (repos.Length == 0)
+            {
+                AddNewTab();
+                return;
+            }
+
+            foreach (var repo in repos)
+                Pages.Add(CreateUnopenedPage(repo));
+        }
+
+        private static LauncherPage CreateUnopenedPage(string repo)
+        {
+            var normalizedPath = repo.Replace('\\', '/').TrimEnd('/');
+            var node = FindOrCreateNode(normalizedPath);
+
+            // Unopened unmanaged nodes can only show their saved name if the minimal info is
+            // read from the .git folder directly, without spawning git.
+            if (node.IsUnmanaged)
+            {
+                var dotGit = Path.Combine(normalizedPath, ".git");
+                if (Directory.Exists(dotGit))
+                    node.LoadMinimalInfo(dotGit);
+            }
+
+            return new LauncherPage(node, null);
+        }
+
+        private static RepositoryNode FindOrCreateNode(string normalizedPath)
+        {
+            return Preferences.Instance.FindNode(normalizedPath) ?? new RepositoryNode
+            {
+                Id = normalizedPath,
+                Name = Path.GetFileName(normalizedPath),
+                Bookmark = 0,
+                IsRepository = true,
+                IsUnmanaged = true
+            };
+        }
+
+        private static bool IsUnopenedPage(LauncherPage page)
+        {
+            return page.Data == null && page.Node is { IsRepository: true };
+        }
+
+        private static string GetPageRepositoryPath(LauncherPage page)
+        {
+            if (page == null)
+                return null;
+
+            if (page.Data is Repository repo)
+                return repo.FullPath;
+
+            return IsUnopenedPage(page) ? page.Node.Id : null;
+        }
+
+        private void RebuildWorkspaceRepositories()
+        {
+            _activeWorkspace.Repositories.Clear();
+            foreach (var p in Pages)
+            {
+                var path = GetPageRepositoryPath(p);
+                if (path != null)
+                    _activeWorkspace.Repositories.Add(path);
+            }
+        }
+
+        private static (string error, bool isBare, string gitDir) ResolveRepositoryLocation(string path)
+        {
+            if (!Directory.Exists(path))
+                return ("Repository does NOT exist any more. Please remove it.", false, null);
+
+            var isBare = new Commands.IsBareRepository(path).GetResult();
+            var gitDir = isBare ? path : GetRepositoryGitDir(path);
+            if (string.IsNullOrEmpty(gitDir))
+                return ("Given path is not a valid git repository!", false, null);
+
+            return (null, isBare, gitDir);
+        }
+
+        private static Repository CreateRepository(RepositoryNode node, bool isBare, string gitDir)
+        {
+            if (node.IsUnmanaged)
+                node.LoadMinimalInfo(gitDir);
+
+            var repo = new Repository(isBare, node.Id, gitDir);
+            repo.Open();
+            return repo;
+        }
+
+        /// <summary>
+        /// Opens an unopened page. The git checks run on a worker thread; the repository itself
+        /// is created on the UI thread. Results are dropped if the page was closed or replaced meanwhile.
+        /// </summary>
+        private async Task OpenUnopenedPageAsync(LauncherPage page)
+        {
+            if (_pendingOpens.ContainsKey(page))
+                return;
+
+            var cts = new CancellationTokenSource();
+            _pendingOpens[page] = cts;
+
+            var node = page.Node;
+            try
+            {
+                var (error, isBare, gitDir) = await Task.Run(() => ResolveRepositoryLocation(node.Id));
+                if (cts.IsCancellationRequested || page.Data != null || page.Node != node || !Pages.Contains(page))
+                    return;
+
+                if (error != null)
+                {
+                    page.Notifications.Add(new Models.Notification
+                    {
+                        Group = node.Id,
+                        Message = error,
+                        IsError = true,
+                    });
+                    return;
+                }
+
+                page.Data = CreateRepository(node, isBare, gitDir);
+                RebuildWorkspaceRepositories();
+
+                if (_activePage == page)
+                    PostActivePageChanged();
+            }
+            catch (Exception e)
+            {
+                Native.OS.LogException(e);
+            }
+            finally
+            {
+                if (_pendingOpens.TryGetValue(page, out var current) && current == cts)
+                    _pendingOpens.Remove(page);
+            }
+        }
+
+        private void CancelPendingOpen(LauncherPage page)
+        {
+            if (_pendingOpens.Remove(page, out var cts))
+                cts.Cancel();
+        }
+
+        /// <summary>
+        /// Loads the remaining unopened tabs one after another. Cancelled when another workspace is activated.
+        /// </summary>
+        private void StartBackgroundLoading()
+        {
+            _loadCts?.Cancel();
+            _loadCts = new CancellationTokenSource();
+            _ = LoadRemainingPagesAsync(new List<LauncherPage>(Pages), _loadCts.Token);
+        }
+
+        private async Task LoadRemainingPagesAsync(List<LauncherPage> pages, CancellationToken token)
+        {
+            foreach (var page in pages)
+            {
+                if (token.IsCancellationRequested)
+                    return;
+
+                if (page == _activePage || !Pages.Contains(page) || !IsUnopenedPage(page) || _pendingOpens.ContainsKey(page))
+                    continue;
+
+                await OpenUnopenedPageAsync(page);
+                if (token.IsCancellationRequested)
+                    return;
+
+                // Yield between tabs so the UI stays responsive while Repository.Open() runs on the UI thread.
+                await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background);
+            }
+        }
+
         private Workspace _activeWorkspace;
         private LauncherPage _activePage;
         private bool _ignoreIndexChange;
         private string _title = string.Empty;
         private ICommandPalette _commandPalette;
         private Models.Version _newVersion = null;
+        private readonly Dictionary<LauncherPage, CancellationTokenSource> _pendingOpens = new Dictionary<LauncherPage, CancellationTokenSource>();
+        private CancellationTokenSource _loadCts;
     }
 }
