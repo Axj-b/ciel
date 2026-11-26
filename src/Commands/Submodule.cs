@@ -12,6 +12,31 @@ namespace SourceGit.Commands
             Context = repo;
         }
 
+        /// <summary>
+        /// Returns true when at least one submodule of the repository has its own SSH key.
+        /// Network commands run in the parent repository export the parent's key through
+        /// GIT_SSH_COMMAND, which git passes on to nested submodule fetches and which
+        /// overrides the submodule's own key. Those commands therefore skip the nested
+        /// fetch in this case; the submodule update step fetches with the right key.
+        /// </summary>
+        public static bool HasCustomSSHKey(string repo)
+        {
+            var config = new Config(repo).ReadAllLocal();
+            foreach (var key in config.Keys)
+            {
+                if (key.StartsWith("submodule.", System.StringComparison.OrdinalIgnoreCase) &&
+                    key.EndsWith(".sshkey", System.StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static string RecurseArg(string repo)
+        {
+            return HasCustomSSHKey(repo) ? "--recurse-submodules=no " : string.Empty;
+        }
+
         public async Task<bool> AddAsync(string url, string relativePath, bool recursive)
         {
             Args = $"-c protocol.file.allow=always submodule add {url.Quoted()} {relativePath.Quoted()}";

@@ -11,7 +11,7 @@ namespace SourceGit.Commands
             SSHKey = remote.PrivateSSHKey;
 
             var builder = new StringBuilder(512);
-            builder.Append("fetch --progress --verbose ");
+            builder.Append("fetch --progress --verbose ").Append(Submodule.RecurseArg(repo));
             builder.Append(noTags ? "--no-tags " : "--tags ");
             if (force)
                 builder.Append("--force ");
@@ -26,7 +26,7 @@ namespace SourceGit.Commands
             Context = repo;
             SSHKey = remote.PrivateSSHKey;
             RaiseError = false;
-            Args = $"fetch --progress --verbose {remote.Name}";
+            Args = $"fetch --progress --verbose {Submodule.RecurseArg(repo)}{remote.Name}";
         }
 
         public Fetch(string repo, Models.Remote remote, Models.Branch remoteBranch, Models.Branch local)
@@ -34,7 +34,7 @@ namespace SourceGit.Commands
             WorkingDirectory = repo;
             Context = repo;
             SSHKey = remote.PrivateSSHKey;
-            Args = $"fetch --progress --verbose {remote.Name} {remoteBranch.Name}:{local.Name}";
+            Args = $"fetch --progress --verbose {Submodule.RecurseArg(repo)}{remote.Name} {remoteBranch.Name}:{local.Name}";
         }
     }
 }

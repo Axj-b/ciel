@@ -12,7 +12,9 @@ namespace SourceGit.Commands
 
             var builder = new StringBuilder(512);
             builder
-                .Append("pull --verbose --progress --rebase=")
+                .Append("pull --verbose --progress ")
+                .Append(Submodule.RecurseArg(repo))
+                .Append("--rebase=")
                 .Append(useRebase ? "true" : "false")
                 .Append(' ')
                 .Append(remote.Name);
