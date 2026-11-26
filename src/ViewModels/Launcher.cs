@@ -158,6 +158,7 @@ namespace SourceGit.ViewModels
             var target = TakeParkedWorkspace(to);
             ParkCurrentWorkspace();
 
+            ActiveWorkspace = to;
             to.IsActive = true;
 
             if (target != null)
