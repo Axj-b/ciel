@@ -646,6 +646,35 @@ namespace SourceGit.ViewModels
             _editorPage?.Cleanup();
         }
 
+        /// <summary>
+        /// Pauses file-watcher refreshes and auto-fetch while the repository's workspace is parked.
+        /// The repository is marked stale and refreshed once when it is shown again.
+        /// </summary>
+        public void Suspend()
+        {
+            _isStale = true;
+            _watcher?.Suspend();
+            _autoFetchTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
+        /// <summary>
+        /// Resumes watcher and auto-fetch. Does not refresh; see <see cref="RefreshIfStale"/>.
+        /// </summary>
+        public void Resume()
+        {
+            _watcher?.Resume();
+            _autoFetchTimer?.Change(5000, 5000);
+        }
+
+        public void RefreshIfStale()
+        {
+            if (!_isStale)
+                return;
+
+            _isStale = false;
+            RefreshAll();
+        }
+
         public void SendNotification(string message, bool isError = false)
         {
             Models.Notification.Send(FullPath, message, isError);
@@ -2157,6 +2186,7 @@ namespace SourceGit.ViewModels
         private bool _isAutoFetching = false;
         private Timer _autoFetchTimer = null;
         private DateTime _lastFetchTime = DateTime.MinValue;
+        private bool _isStale = false;
 
         private Models.BisectState _bisectState = Models.BisectState.None;
         private bool _isBisectCommandRunning = false;

@@ -45,6 +45,7 @@ namespace SourceGit.ViewModels
             if (_selected == null || _selected.IsActive)
                 return;
 
+            App.GetLauncher()?.DropParkedWorkspace(_selected);
             Preferences.Instance.Workspaces.Remove(_selected);
             Workspaces.Remove(_selected);
         }

@@ -368,7 +368,7 @@ namespace SourceGit.Views
                                 if (!isCurrent)
                                 {
                                     vm.CloseTab(page);
-                                    dupWs.Repositories.Add(repo.FullPath);
+                                    vm.AddRepositoryToWorkspace(dupWs, repo.FullPath);
                                 }
 
                                 ev.Handled = true;

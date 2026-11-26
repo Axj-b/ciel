@@ -14,6 +14,11 @@ namespace SourceGit.ViewModels
 {
     public class Launcher : ObservableObject
     {
+        /// <summary>
+        /// Number of workspaces kept in memory besides the active one.
+        /// </summary>
+        private const int MaxParkedWorkspaces = 2;
+
         public string Title
         {
             get => _title;
@@ -41,6 +46,9 @@ namespace SourceGit.ViewModels
                 {
                     if (value != null && IsUnopenedPage(value))
                         _ = OpenUnopenedPageAsync(value);
+
+                    if (value?.Data is Repository repo)
+                        repo.RefreshIfStale();
 
                     PostActivePageChanged();
                 }
@@ -129,6 +137,10 @@ namespace SourceGit.ViewModels
             foreach (var one in Pages)
                 CloseRepositoryInTab(one, false);
 
+            foreach (var parked in _parked)
+                CloseWorkspacePages(parked.Pages);
+            _parked.Clear();
+
             _ignoreIndexChange = false;
         }
 
@@ -143,20 +155,36 @@ namespace SourceGit.ViewModels
             foreach (var w in pref.Workspaces)
                 w.IsActive = false;
 
-            ActiveWorkspace = to;
+            var target = TakeParkedWorkspace(to);
+            ParkCurrentWorkspace();
+
             to.IsActive = true;
 
-            foreach (var one in Pages)
-                CloseRepositoryInTab(one, false);
+            if (target != null)
+            {
+                Pages = target.Pages;
+                OnPropertyChanged(nameof(Pages));
 
-            Pages.Clear();
-            RestoreWorkspaceTabs();
+                foreach (var page in Pages)
+                {
+                    if (page.Data is Repository repo)
+                        repo.Resume();
+                }
 
-            var activeIdx = to.ActiveIdx;
-            if (activeIdx >= 0 && activeIdx < Pages.Count)
-                ActivePage = Pages[activeIdx];
+                ActivePage = target.ActivePage ?? Pages[0];
+            }
             else
-                ActivePage = Pages[0];
+            {
+                Pages = new AvaloniaList<LauncherPage>();
+                OnPropertyChanged(nameof(Pages));
+                RestoreWorkspaceTabs();
+
+                var activeIdx = to.ActiveIdx;
+                if (activeIdx >= 0 && activeIdx < Pages.Count)
+                    ActivePage = Pages[activeIdx];
+                else
+                    ActivePage = Pages[0];
+            }
 
             _ignoreIndexChange = false;
             PostActivePageChanged();
@@ -213,6 +241,13 @@ namespace SourceGit.ViewModels
         {
             if (session is null)
                 return;
+
+            var owner = FindWorkspaceOwningRepository(session.RepositoryPath);
+            if (owner == null)
+                return;
+
+            if (owner != _activeWorkspace)
+                SwitchWorkspace(owner);
 
             foreach (var page in Pages)
             {
@@ -459,7 +494,7 @@ namespace SourceGit.ViewModels
                 return;
             }
 
-            foreach (var page in Pages)
+            foreach (var page in EnumerateAllPages())
             {
                 var id = page.Node.Id.Replace('\\', '/').TrimEnd('/');
                 if (id.Equals(notification.Group, StringComparison.OrdinalIgnoreCase))
@@ -471,6 +506,112 @@ namespace SourceGit.ViewModels
 
             _activePage?.Notifications.Add(notification);
         }
+
+        /// <summary>
+        /// Pages of the active workspace followed by the pages of parked workspaces.
+        /// </summary>
+        private IEnumerable<LauncherPage> EnumerateAllPages()
+        {
+            foreach (var page in Pages)
+                yield return page;
+
+            foreach (var parked in _parked)
+            {
+                foreach (var page in parked.Pages)
+                    yield return page;
+            }
+        }
+
+        private Workspace FindWorkspaceOwningRepository(string path)
+        {
+            foreach (var page in Pages)
+            {
+                if (page.Data is Repository repo && repo.FullPath.Equals(path, StringComparison.Ordinal))
+                    return _activeWorkspace;
+            }
+
+            foreach (var parked in _parked)
+            {
+                foreach (var page in parked.Pages)
+                {
+                    if (page.Data is Repository repo && repo.FullPath.Equals(path, StringComparison.Ordinal))
+                        return parked.Workspace;
+                }
+            }
+
+            return null;
+        }
+
+        private ParkedWorkspace TakeParkedWorkspace(Workspace ws)
+        {
+            var idx = _parked.FindIndex(p => ReferenceEquals(p.Workspace, ws));
+            if (idx < 0)
+                return null;
+
+            var parked = _parked[idx];
+            _parked.RemoveAt(idx);
+            return parked;
+        }
+
+        /// <summary>
+        /// Keeps the current workspace's tabs and repositories in memory (suspended) and
+        /// closes the least recently used parked workspace when the limit is exceeded.
+        /// </summary>
+        private void ParkCurrentWorkspace()
+        {
+            _loadCts?.Cancel();
+            _loadCts = null;
+
+            foreach (var cts in _pendingOpens.Values)
+                cts.Cancel();
+            _pendingOpens.Clear();
+
+            foreach (var page in Pages)
+            {
+                if (page.Data is Repository repo)
+                    repo.Suspend();
+            }
+
+            _parked.Add(new ParkedWorkspace(_activeWorkspace, Pages, _activePage));
+            Pages = new AvaloniaList<LauncherPage>();
+            OnPropertyChanged(nameof(Pages));
+
+            while (_parked.Count > MaxParkedWorkspaces)
+            {
+                var evicted = _parked[0];
+                _parked.RemoveAt(0);
+                CloseWorkspacePages(evicted.Pages);
+            }
+        }
+
+        private void CloseWorkspacePages(AvaloniaList<LauncherPage> pages)
+        {
+            foreach (var page in pages)
+                CloseRepositoryInTab(page, false);
+        }
+
+        /// <summary>
+        /// Closes the parked tabs of a workspace that is being deleted.
+        /// </summary>
+        public void DropParkedWorkspace(Workspace ws)
+        {
+            var parked = TakeParkedWorkspace(ws);
+            if (parked != null)
+                CloseWorkspacePages(parked.Pages);
+        }
+
+        /// <summary>
+        /// Adds a repository to a workspace (possibly parked) without changing the active workspace.
+        /// </summary>
+        public void AddRepositoryToWorkspace(Workspace ws, string path)
+        {
+            var parked = _parked.Find(p => ReferenceEquals(p.Workspace, ws));
+            if (parked != null)
+                parked.Pages.Add(CreateUnopenedPage(path));
+
+            ws.Repositories.Add(path);
+        }
+
 
         private static string GetRepositoryGitDir(string repo)
         {
@@ -733,5 +874,20 @@ namespace SourceGit.ViewModels
         private Models.Version _newVersion = null;
         private readonly Dictionary<LauncherPage, CancellationTokenSource> _pendingOpens = new Dictionary<LauncherPage, CancellationTokenSource>();
         private CancellationTokenSource _loadCts;
+        private readonly List<ParkedWorkspace> _parked = new List<ParkedWorkspace>();
+
+        private sealed class ParkedWorkspace
+        {
+            public ParkedWorkspace(Workspace workspace, AvaloniaList<LauncherPage> pages, LauncherPage activePage)
+            {
+                Workspace = workspace;
+                Pages = pages;
+                ActivePage = activePage;
+            }
+
+            public Workspace Workspace { get; }
+            public AvaloniaList<LauncherPage> Pages { get; }
+            public LauncherPage ActivePage { get; }
+        }
     }
 }

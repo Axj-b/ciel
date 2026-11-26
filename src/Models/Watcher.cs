@@ -100,6 +100,27 @@ namespace SourceGit.Models
             return new LockContext(this);
         }
 
+        /// <summary>
+        /// Stops raising refresh work. File events that happen while suspended are dropped;
+        /// the owner must refresh the repository on resume.
+        /// </summary>
+        public void Suspend()
+        {
+            _suspended = true;
+            Interlocked.Exchange(ref _updateBranch, 0);
+            Interlocked.Exchange(ref _updateWC, 0);
+            Interlocked.Exchange(ref _updateSubmodules, 0);
+            Interlocked.Exchange(ref _updateStashes, 0);
+            Interlocked.Exchange(ref _updateTags, 0);
+            _timer?.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
+        public void Resume()
+        {
+            _suspended = false;
+            _timer?.Change(100, 100);
+        }
+
         public void MarkBranchUpdated()
         {
             Interlocked.Exchange(ref _updateBranch, 0);
@@ -141,7 +162,7 @@ namespace SourceGit.Models
 
         private void Tick(object sender)
         {
-            if (Interlocked.Read(ref _lockCount) > 0)
+            if (_suspended || Interlocked.Read(ref _lockCount) > 0)
                 return;
 
             var now = DateTime.Now.ToFileTime();
@@ -230,7 +251,7 @@ namespace SourceGit.Models
 
         private void OnRepositoryChanged(object o, FileSystemEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.Name) || e.Name.Equals(".git", StringComparison.Ordinal))
+            if (_suspended || string.IsNullOrEmpty(e.Name) || e.Name.Equals(".git", StringComparison.Ordinal))
                 return;
 
             var name = e.Name.Replace('\\', '/').TrimEnd('/');
@@ -249,6 +270,9 @@ namespace SourceGit.Models
         /// </summary>
         private void OnWatcherError(object o, ErrorEventArgs e)
         {
+            if (_suspended)
+                return;
+
             var desired = DateTime.Now.AddSeconds(1).ToFileTime();
             Interlocked.Exchange(ref _updateBranch, desired);
             Interlocked.Exchange(ref _updateTags, desired);
@@ -260,7 +284,7 @@ namespace SourceGit.Models
 
         private void OnGitDirChanged(object o, FileSystemEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.Name))
+            if (_suspended || string.IsNullOrEmpty(e.Name))
                 return;
 
             var name = e.Name.Replace('\\', '/').TrimEnd('/');
@@ -269,7 +293,7 @@ namespace SourceGit.Models
 
         private void OnWorkingCopyChanged(object o, FileSystemEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.Name))
+            if (_suspended || string.IsNullOrEmpty(e.Name))
                 return;
 
             var name = e.Name.Replace('\\', '/').TrimEnd('/');
@@ -379,6 +403,7 @@ namespace SourceGit.Models
         private Timer _timer;
 
         private long _lockCount;
+        private volatile bool _suspended = false;
         private long _updateWC;
         private long _updateBranch;
         private long _updateSubmodules;
