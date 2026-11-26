@@ -975,6 +975,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">削除</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">ブランチを設定</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">URL を変更</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">SSH キーを設定</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">状態</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">変更あり</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">未初期化</x:String>

@@ -1690,7 +1690,7 @@ namespace SourceGit.ViewModels
                     var builder = new StringBuilder();
                     builder.Append("\n\n");
                     foreach (var s in submodules)
-                        builder.Append("- ").Append(s).Append('\n');
+                        builder.Append("- ").Append(s.Path).Append('\n');
                     builder.Append("\n");
 
                     var msg = App.Text("Checkout.WarnUpdatingSubmodules", builder.ToString());
@@ -1699,9 +1699,15 @@ namespace SourceGit.ViewModels
                         break;
                 }
 
-                await new Commands.Submodule(FullPath)
-                    .Use(log)
-                    .UpdateAsync(submodules, false, _settings.EnableRecursiveWhenAutoUpdatingSubmodules, false);
+                var fallbackKey = await Commands.GitIdentityConfig.GetSSHKeyAsync(FullPath);
+                var groups = submodules.GroupBy(x => string.IsNullOrEmpty(x.PrivateSSHKey) ? fallbackKey : x.PrivateSSHKey);
+                foreach (var group in groups)
+                {
+                    await new Commands.Submodule(FullPath)
+                        .Use(log)
+                        .WithSSHKey(group.Key)
+                        .UpdateAsync(group.Select(x => x.Path).ToList(), false, _settings.EnableRecursiveWhenAutoUpdatingSubmodules, false);
+                }
             } while (false);
         }
 

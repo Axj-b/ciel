@@ -1059,6 +1059,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Delete</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">Set Branch</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">Change URL</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Set SSH Key</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">STATUS</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">modified</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">not initialized</x:String>

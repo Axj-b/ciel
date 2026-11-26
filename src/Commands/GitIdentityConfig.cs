@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace SourceGit.Commands
@@ -63,6 +64,54 @@ namespace SourceGit.Commands
                 await SetIfChangedAsync(config, cached, HTTPS_HOST, string.IsNullOrEmpty(username) ? string.Empty : host).ConfigureAwait(false);
                 await SetIfChangedAsync(config, cached, CredentialUsernameKey(host), username).ConfigureAwait(false);
             }
+        }
+
+        public static string GetSSHKey(Dictionary<string, string> localConfig)
+        {
+            var key = localConfig.GetValueOrDefault(SSH_KEY, string.Empty);
+            if (!string.IsNullOrEmpty(key))
+                return key;
+
+            var command = localConfig.GetValueOrDefault(CORE_SSH_COMMAND, string.Empty);
+            if (Models.GitAccount.IsGeneratedSSHCommand(command))
+                return Models.GitAccount.ExtractKeyFromSSHCommand(command);
+
+            return string.Empty;
+        }
+
+        public static async Task<string> GetSSHKeyAsync(string repo)
+        {
+            var localConfig = await new Config(repo).ReadAllLocalAsync().ConfigureAwait(false);
+            return GetSSHKey(localConfig);
+        }
+
+        /// <summary>
+        /// Mirrors a submodule's SSH key into the submodule repository's own
+        /// config, so that opening the submodule as a separate repository (or
+        /// using external git tooling there) also uses the right key.
+        /// </summary>
+        public static async Task ApplySubmoduleSSHKeyAsync(string submoduleRepo, string sshKey, Models.ICommandLog log = null)
+        {
+            if (string.IsNullOrEmpty(submoduleRepo) || !Directory.Exists(submoduleRepo))
+                return;
+
+            var config = new Config(submoduleRepo);
+            if (log != null)
+                config.Use(log);
+
+            var key = Models.GitAccount.NormalizeKeyPath(sshKey);
+            if (!string.IsNullOrEmpty(key))
+            {
+                await config.SetAsync(CORE_SSH_COMMAND, Models.GitAccount.BuildSSHCommand(key)).ConfigureAwait(false);
+                return;
+            }
+
+            // Only remove a command that this app generated, so manual
+            // core.sshCommand values are never clobbered.
+            var localConfig = await config.ReadAllLocalAsync().ConfigureAwait(false);
+            var oldCommand = localConfig.GetValueOrDefault(CORE_SSH_COMMAND, string.Empty);
+            if (Models.GitAccount.IsGeneratedSSHCommand(oldCommand))
+                await config.SetAsync(CORE_SSH_COMMAND, string.Empty).ConfigureAwait(false);
         }
 
         public static string CredentialUsernameKey(string host)

@@ -236,6 +236,16 @@ namespace SourceGit.Views
                         ev.Handled = true;
                     };
 
+                    var setSSHKey = new MenuItem();
+                    setSSHKey.Header = App.Text("Submodule.SetSSHKey");
+                    setSSHKey.Icon = this.CreateMenuIcon("Icons.Password");
+                    setSSHKey.Click += (_, ev) =>
+                    {
+                        if (repo.CanCreatePopup())
+                            repo.ShowPopup(new ViewModels.SetSubmoduleSSHKey(repo, submodule));
+                        ev.Handled = true;
+                    };
+
                     var deinit = new MenuItem();
                     deinit.Header = App.Text("Submodule.Deinit");
                     deinit.Icon = this.CreateMenuIcon("Icons.Undo");
@@ -316,6 +326,7 @@ namespace SourceGit.Views
                     menu.Items.Add(update);
                     menu.Items.Add(setURL);
                     menu.Items.Add(setBranch);
+                    menu.Items.Add(setSSHKey);
                     menu.Items.Add(move);
                     menu.Items.Add(deinit);
                     menu.Items.Add(rm);

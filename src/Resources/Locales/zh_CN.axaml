@@ -990,6 +990,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">删除</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">修改跟踪分支</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">修改远程地址</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">设置 SSH 密钥</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">状态</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">未提交修改</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">未初始化</x:String>

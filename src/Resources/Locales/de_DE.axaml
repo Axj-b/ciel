@@ -934,6 +934,7 @@ $1, $2, … Werte der Eingabe-Steuerelemente</x:String>
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Submodul löschen</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">Branch setzen</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">URL ändern</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">SSH-Schlüssel festlegen</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">STATUS</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">geändert</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">nicht initialisiert</x:String>

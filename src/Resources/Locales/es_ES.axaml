@@ -990,6 +990,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Eliminar Submódulo</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">Establecer Rama</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">Cambiar URL</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Establecer clave SSH</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">ESTADO</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">modificado</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">no inicializado</x:String>

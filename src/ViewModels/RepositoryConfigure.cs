@@ -263,13 +263,7 @@ namespace SourceGit.ViewModels
             var identity = new Commands.Config(repo.FullPath).ReadAllLocal();
             var accountId = identity.GetValueOrDefault(Commands.GitIdentityConfig.ACCOUNT, string.Empty);
             SelectedAccount = Accounts.Find(x => x.Id == accountId) ?? Accounts[0];
-            SSHKey = identity.GetValueOrDefault(Commands.GitIdentityConfig.SSH_KEY, string.Empty);
-            if (string.IsNullOrEmpty(SSHKey))
-            {
-                var sshCommand = identity.GetValueOrDefault(Commands.GitIdentityConfig.CORE_SSH_COMMAND, string.Empty);
-                if (Models.GitAccount.IsGeneratedSSHCommand(sshCommand))
-                    SSHKey = Models.GitAccount.ExtractKeyFromSSHCommand(sshCommand);
-            }
+            SSHKey = Commands.GitIdentityConfig.GetSSHKey(identity);
             HTTPSUsername = identity.GetValueOrDefault(Commands.GitIdentityConfig.HTTPS_USERNAME, string.Empty);
             _httpsHost = identity.GetValueOrDefault(Commands.GitIdentityConfig.HTTPS_HOST, string.Empty);
             if (string.IsNullOrEmpty(_httpsHost))

@@ -894,6 +894,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">מחק</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">הגדר Branch</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">שנה URL</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">הגדרת מפתח SSH</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">סטטוס</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">שונה</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">לא אותחל</x:String>

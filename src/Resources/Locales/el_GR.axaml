@@ -930,6 +930,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Διαγραφή</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">Ορισμός κλάδου</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">Αλλαγή URL</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Ορισμός κλειδιού SSH</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">ΚΑΤΑΣΤΑΣΗ</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">τροποποιημένη</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">μη αρχικοποιημένη</x:String>

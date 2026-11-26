@@ -119,6 +119,16 @@ namespace SourceGit.Commands
                 }
             }
 
+            if (submodules.Count > 0)
+            {
+                var localConfig = await new Config(WorkingDirectory).ReadAllLocalAsync().ConfigureAwait(false);
+                foreach (var module in submodules)
+                {
+                    if (localConfig.TryGetValue(Models.Submodule.BuildSSHKeyConfigKey(module.Path), out var sshKey))
+                        module.PrivateSSHKey = sshKey;
+                }
+            }
+
             if (needCheckLocalChanges)
             {
                 var builder = new StringBuilder();

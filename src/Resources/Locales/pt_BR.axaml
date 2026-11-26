@@ -585,6 +585,7 @@
   <x:String x:Key="Text.Statistics.TotalAuthors" xml:space="preserve">AUTORES: </x:String>
   <x:String x:Key="Text.Statistics.TotalCommits" xml:space="preserve">COMMITS: </x:String>
   <x:String x:Key="Text.Submodule" xml:space="preserve">SUBMÓDULOS</x:String>
+  <x:String x:Key="Text.ChangeSubmoduleUrl.Submodule" xml:space="preserve">Submódulo:</x:String>
   <x:String x:Key="Text.Submodule.Add" xml:space="preserve">Adicionar Submódulo</x:String>
   <x:String x:Key="Text.Submodule.CopyPath" xml:space="preserve">Caminho Relativo</x:String>
   <x:String x:Key="Text.Submodule.FetchNested" xml:space="preserve">Buscar submódulos aninhados</x:String>
@@ -592,6 +593,7 @@
   <x:String x:Key="Text.Submodule.RelativePath" xml:space="preserve">Caminho Relativo:</x:String>
   <x:String x:Key="Text.Submodule.RelativePath.Placeholder" xml:space="preserve">Pasta relativa para armazenar este módulo.</x:String>
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Excluir Submódulo</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Definir Chave SSH</x:String>
   <x:String x:Key="Text.Sure" xml:space="preserve">OK</x:String>
   <x:String x:Key="Text.TagCM.Delete" xml:space="preserve">Excluir ${0}$...</x:String>
   <x:String x:Key="Text.TagCM.Push" xml:space="preserve">Enviar ${0}$...</x:String>

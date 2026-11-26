@@ -835,6 +835,7 @@ ${pure_files:N} Come ${files:N}, ma senza cartelle</x:String>
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Elimina Sottomodulo</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">Imposta Branch</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">Cambia URL</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Imposta chiave SSH</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">STATO</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">modificato</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">non inizializzato</x:String>

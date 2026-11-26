@@ -935,6 +935,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Hapus</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">Atur Branch</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">Ubah URL</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Atur Kunci SSH</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">STATUS</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">dimodifikasi</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">tidak diinisialisasi</x:String>

@@ -86,6 +86,12 @@ namespace SourceGit
             cmd.CancellationToken = token;
             return cmd;
         }
+
+        public static T WithSSHKey<T>(this T cmd, string key) where T : Commands.Command
+        {
+            cmd.SSHKey = key ?? string.Empty;
+            return cmd;
+        }
     }
 
     public static class DirectoryInfoExtension

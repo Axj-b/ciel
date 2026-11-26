@@ -19,9 +19,9 @@ namespace SourceGit.Commands
             _includeUninited = includeUninited;
         }
 
-        public async Task<List<string>> GetResultAsync()
+        public async Task<List<Models.Submodule>> GetResultAsync()
         {
-            var submodules = new List<string>();
+            var submodules = new List<Models.Submodule>();
             var rs = await ReadToEndAsync().ConfigureAwait(false);
 
             var lines = rs.StdOut.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
@@ -35,7 +35,17 @@ namespace SourceGit.Commands
                     if (!_includeUninited && stat.StartsWith('-'))
                         continue;
 
-                    submodules.Add(path);
+                    submodules.Add(new Models.Submodule() { Path = path });
+                }
+            }
+
+            if (submodules.Count > 0)
+            {
+                var localConfig = await new Config(WorkingDirectory).ReadAllLocalAsync().ConfigureAwait(false);
+                foreach (var module in submodules)
+                {
+                    if (localConfig.TryGetValue(Models.Submodule.BuildSSHKeyConfigKey(module.Path), out var sshKey))
+                        module.PrivateSSHKey = sshKey;
                 }
             }
 

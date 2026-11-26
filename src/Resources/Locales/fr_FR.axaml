@@ -894,6 +894,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Supprimer le sous-module</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">Définir la Branche</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">Changer l'URL</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Définir la clé SSH</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">STATUT</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">modifié</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">non initialisé</x:String>

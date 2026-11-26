@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -215,7 +216,8 @@ namespace SourceGit.ViewModels
                     await new Commands.Submodule(path)
                         .WithCancellation(token)
                         .Use(log)
-                        .UpdateAsync(submodules, true, true, false);
+                        .WithSSHKey(sshKey)
+                        .UpdateAsync(submodules.Select(x => x.Path).ToList(), true, true, false);
             }
 
             log.Complete();

@@ -902,6 +902,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">삭제</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">브랜치 설정</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">URL 변경</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">SSH 키 설정</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">상태</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">수정됨</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">초기화 안 됨</x:String>

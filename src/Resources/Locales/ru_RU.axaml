@@ -990,6 +990,7 @@
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Удалить подмодуль</x:String>
   <x:String x:Key="Text.Submodule.SetBranch" xml:space="preserve">Установить ветку</x:String>
   <x:String x:Key="Text.Submodule.SetURL" xml:space="preserve">Изменить URL-адрес</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Задать SSH-ключ</x:String>
   <x:String x:Key="Text.Submodule.Status" xml:space="preserve">СОСТОЯНИЕ</x:String>
   <x:String x:Key="Text.Submodule.Status.Modified" xml:space="preserve">изменён</x:String>
   <x:String x:Key="Text.Submodule.Status.NotInited" xml:space="preserve">не создан</x:String>

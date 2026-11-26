@@ -600,6 +600,7 @@
   <x:String x:Key="Text.Statistics.TotalAuthors" xml:space="preserve">ஆசிரியர்கள்: </x:String>
   <x:String x:Key="Text.Statistics.TotalCommits" xml:space="preserve">உறுதிமொழிகள்: </x:String>
   <x:String x:Key="Text.Submodule" xml:space="preserve">துணைத் தொகுதி</x:String>
+  <x:String x:Key="Text.ChangeSubmoduleUrl.Submodule" xml:space="preserve">துணைத் தொகுதி:</x:String>
   <x:String x:Key="Text.Submodule.Add" xml:space="preserve">துணைத் தொகுதியைச் சேர்</x:String>
   <x:String x:Key="Text.Submodule.CopyPath" xml:space="preserve">உறவு பாதை</x:String>
   <x:String x:Key="Text.Submodule.FetchNested" xml:space="preserve">உள்ளமைக்கப்பட்ட துணைத் தொகுதிகளை எடு</x:String>
@@ -607,6 +608,7 @@
   <x:String x:Key="Text.Submodule.RelativePath" xml:space="preserve">உறவு பாதை:</x:String>
   <x:String x:Key="Text.Submodule.RelativePath.Placeholder" xml:space="preserve">இந்த தொகுதியை சேமிப்பதற்கான தொடர்புடைய கோப்புறை.</x:String>
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">துணை தொகுதியை நீக்கு</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">SSH விசையை அமை</x:String>
   <x:String x:Key="Text.Sure" xml:space="preserve">சரி</x:String>
   <x:String x:Key="Text.TagCM.Delete" xml:space="preserve">நீக்கு ${0}$...</x:String>
   <x:String x:Key="Text.TagCM.Push" xml:space="preserve">தள்ளு ${0}$...</x:String>

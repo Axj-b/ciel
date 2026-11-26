@@ -604,6 +604,7 @@
   <x:String x:Key="Text.Statistics.TotalAuthors" xml:space="preserve">АВТОРІВ: </x:String>
   <x:String x:Key="Text.Statistics.TotalCommits" xml:space="preserve">КОМІТІВ: </x:String>
   <x:String x:Key="Text.Submodule" xml:space="preserve">ПІДМОДУЛІ</x:String>
+  <x:String x:Key="Text.ChangeSubmoduleUrl.Submodule" xml:space="preserve">Підмодуль:</x:String>
   <x:String x:Key="Text.Submodule.Add" xml:space="preserve">Додати підмодуль</x:String>
   <x:String x:Key="Text.Submodule.CopyPath" xml:space="preserve">відносний шлях</x:String>
   <x:String x:Key="Text.Submodule.FetchNested" xml:space="preserve">Отримати вкладені підмодулі</x:String>
@@ -611,6 +612,7 @@
   <x:String x:Key="Text.Submodule.RelativePath" xml:space="preserve">Відносний шлях:</x:String>
   <x:String x:Key="Text.Submodule.RelativePath.Placeholder" xml:space="preserve">Відносна тека для зберігання цього модуля.</x:String>
   <x:String x:Key="Text.Submodule.Remove" xml:space="preserve">Видалити підмодуль</x:String>
+  <x:String x:Key="Text.Submodule.SetSSHKey" xml:space="preserve">Задати SSH-ключ</x:String>
   <x:String x:Key="Text.Sure" xml:space="preserve">OK</x:String>
   <x:String x:Key="Text.TagCM.Delete" xml:space="preserve">Видалити ${0}$...</x:String>
   <x:String x:Key="Text.TagCM.Push" xml:space="preserve">Надіслати ${0}$...</x:String>
