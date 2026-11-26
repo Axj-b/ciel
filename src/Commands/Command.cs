@@ -40,6 +40,8 @@ namespace SourceGit.Commands
         public async Task<bool> ExecAsync()
         {
             Log?.AppendLine($"$ git {Args}\n");
+            if (!string.IsNullOrEmpty(SSHKey))
+                Log?.AppendLine($"# SSH key: {SSHKey}\n");
 
             var errs = new List<string>();
 
